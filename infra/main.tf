@@ -12,3 +12,10 @@ module "vpc" {
   eip_nat               = "vpc" 
   vpc_nat_gateway       = "enabled"
 }
+
+module "security_groups" {
+  source                    = "../modules/security_groups"
+  vpc_id                    = module.vpc.vpc_id 
+  memos_alb_sg_name         = "memos_alb_sg"
+  memos_alb_sg_description  = "Security Group for Memos ALB"
+}
