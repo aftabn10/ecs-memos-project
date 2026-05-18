@@ -8,13 +8,25 @@ resource "aws_vpc" "vpc_memos" {
   }
 }
 
-# Public Subnet
-resource "aws_subnet" "public_subnet_memos" {
-  vpc_id     = aws_vpc.vpc_memos.id
-  cidr_block = var.public_subnet_cidr
+# 1st Public Subnet
+resource "aws_subnet" "public_subnet_memos_a" {
+  vpc_id            = aws_vpc.vpc_memos.id
+  cidr_block        = var.public_subnet_cidr_a
+  availability_zone = "eu-west-2a" 
 
   tags = {
-    Name = "public_subnet_memos"
+    Name = "public_subnet_memos_a"
+  }
+}
+
+# 2nd Public Subnet
+resource "aws_subnet" "public_subnet_memos_b" {
+  vpc_id     = aws_vpc.vpc_memos.id
+  cidr_block = var.public_subnet_cidr_b
+  availability_zone = "eu-west-2b"
+
+  tags = {
+    Name = "public_subnet_memos_b"
   }
 }
 
@@ -45,7 +57,7 @@ resource "aws_eip" "eip_nat" {
 # NAT Gateway
 resource "aws_nat_gateway" "vpc_nat_gateway" {
   allocation_id = aws_eip.eip_nat.id
-  subnet_id     = aws_subnet.public_subnet_memos.id
+  subnet_id     = aws_subnet.public_subnet_memos_a.id
 
   tags = {
     Name = "vpc_nat_gateway"
@@ -67,8 +79,14 @@ resource "aws_route_table" "route_table_memos" {
   }
 }
 
-# Route Table Association
-resource "aws_route_table_association" "subnet_assoc" {
-  subnet_id      = aws_subnet.public_subnet_memos.id
+# Route Table Association - Public Subnet A
+resource "aws_route_table_association" "subnet_a_assoc" {
+  subnet_id      = aws_subnet.public_subnet_memos_a.id
+  route_table_id = aws_route_table.route_table_memos.id
+}
+
+# Route Table Association - Public Subnet B
+resource "aws_route_table_association" "subnet_b_assoc" {
+  subnet_id      = aws_subnet.public_subnet_memos_b.id
   route_table_id = aws_route_table.route_table_memos.id
 }

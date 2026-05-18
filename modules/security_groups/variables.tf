@@ -11,3 +11,52 @@ variable "memos_alb_sg_description" {
     description = "Security Group Description for ALB"
     type = string
 }
+
+variable "inbound_cidr_ipv4" {
+    description = "CIDR for ALB SG Inbound Rules"
+    type = string
+}
+
+variable "inbound_ip_protocol" {
+    description = "IP Type for ALB SG Inbound Rules"
+}
+
+variable "alb_from_port" {
+    description = "From Port for ALB SG Inbound Rules"
+}
+
+variable "alb_to_port" {
+    description = "To Port for ALB SG Inbound Rules"
+}
+
+variable "outbound_cidr_ipv4" {
+    description = "CIDR for ALB SG Outbound Rules"
+    type = string
+}
+
+variable "outbound_ip_protocol" {
+    description = "IP Type for ALB SG Outbound Rules"
+}
+
+variable "memos_ecs_sg_name" {
+  description = "Security Group Name for ECS ALB"
+  type        = string
+}
+
+variable "memos_ecs_sg_description" {
+    description = "Security Group Description for ECS ALB"
+    type = string
+}
+
+# ECS SG Variables
+variable "ecs_inbound_ip_protocol" {
+    description = "IP Type for ALB SG Inbound Rules"
+}
+
+variable "ecs_from_port" {
+    description = "From Port for ALB SG Inbound Rules"
+}
+
+variable "ecs_to_port" {
+    description = "To Port for ALB SG Inbound Rules"
+}
