@@ -28,6 +28,11 @@ variable "route_table_cidr" {
   type = string
 }
 
+variable "route_table_nat_cidr" {
+  description = "CIDR for Private Route Table"
+  type = string
+}
+
 variable "eip_nat" {
   description = "EIP Nat"
   type = string

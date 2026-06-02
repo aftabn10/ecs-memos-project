@@ -10,6 +10,7 @@ module "vpc" {
   public_subnet_cidr_b    = "10.0.2.0/24"
   private_subnet_cidr     = "10.0.3.0/24"
   route_table_cidr        = "0.0.0.0/0"
+  route_table_nat_cidr    = "0.0.0.0/0" 
   eip_nat                 = "vpc" 
   vpc_nat_gateway         = "enabled"
 }
@@ -49,4 +50,26 @@ module "alb" {
   tg_timeout                = 10
   tg_healthy_threshold      = 2
   tg_unhealthy_threshold    = 5
+  listener_port             = 80
+  listener_protocol         = "HTTP"  
+}
+
+module "ecs" {
+  source                    = "../modules/ecs"
+  ecr_image_url             = "905674322808.dkr.ecr.eu-west-2.amazonaws.com/ecr-memos-app"
+  task_definition_cpu       = 256
+  task_definition_memory    = 512
+  execution_role_arn        = "arn:aws:iam::905674322808:role/ecsTaskExecutionRole"
+  task_role_arn             = null
+  ecs_fargate_cluster_name  = "memos-fargate-cluster"
+  volume_name               = "memos-data"
+  container_mount_path      = "/var/opt/memos"
+  service_name              = "ecr-memo-service"
+  service_launch_type       = "FARGATE"
+  service_desired_count     = 1
+  health_check_grace_period_seconds = 30
+  
+  private_subnet_ids        = module.vpc.private_subnet_ids
+  ecs_service_sg_id         = module.security_groups.ecs_security_group_id
+  target_group_arn          = module.alb.target_group_arn 
 }

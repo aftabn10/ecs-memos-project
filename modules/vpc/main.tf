@@ -90,3 +90,19 @@ resource "aws_route_table_association" "subnet_b_assoc" {
   subnet_id      = aws_subnet.public_subnet_memos_b.id
   route_table_id = aws_route_table.route_table_memos.id
 }
+
+# Creating Route Table for NAT Gateway
+resource "aws_route_table" "rt_NAT" {
+    vpc_id = aws_vpc.vpc_memos.id
+route {
+        cidr_block = var.route_table_nat_cidr
+        nat_gateway_id = aws_nat_gateway.vpc_nat_gateway.id
+    }
+tags = {
+        Name = "Route Table for Private subnet"
+    }
+}
+resource "aws_route_table_association" "rt_associate_private" {
+    subnet_id      = aws_subnet.private_subnet_memos.id
+    route_table_id = aws_route_table.rt_NAT.id
+}
