@@ -31,6 +31,8 @@ module "security_groups" {
   ecs_inbound_ip_protocol   = "tcp"
   ecs_from_port             = 8081
   ecs_to_port               = 8081
+  ecs_outbound_cidr_ipv4    = "0.0.0.0/0"
+  ecs_outbound_ip_protocol  = "-1"
 }
 
 module "alb" {
