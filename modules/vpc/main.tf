@@ -30,13 +30,25 @@ resource "aws_subnet" "public_subnet_memos_b" {
   }
 }
 
-# Private Subnet
-resource "aws_subnet" "private_subnet_memos" {
+# 1st Private Subnet
+resource "aws_subnet" "private_subnet_memos_a" {
   vpc_id     = aws_vpc.vpc_memos.id
-  cidr_block = var.private_subnet_cidr
+  cidr_block = var.private_subnet_cidr_a
+  availability_zone = "eu-west-2a"
 
   tags = {
-    Name = "private_subnet_memos"
+    Name = "private_subnet_memos_a"
+  }
+}
+
+# 2nd Private Subnet
+resource "aws_subnet" "private_subnet_memos_b" {
+  vpc_id     = aws_vpc.vpc_memos.id
+  cidr_block = var.private_subnet_cidr_b
+  availability_zone = "eu-west-2b"
+
+  tags = {
+    Name = "private_subnet_memos_b"
   }
 }
 
@@ -102,7 +114,15 @@ tags = {
         Name = "Route Table for Private subnet"
     }
 }
-resource "aws_route_table_association" "rt_associate_private" {
-    subnet_id      = aws_subnet.private_subnet_memos.id
+
+# Route Table Association - Private Subnet A
+resource "aws_route_table_association" "private_subnet_a_assoc" {
+    subnet_id      = aws_subnet.private_subnet_memos_a.id
+    route_table_id = aws_route_table.rt_NAT.id
+}
+
+# Route Table Association - Private Subnet B
+resource "aws_route_table_association" "private_subnet_b_assoc" {
+    subnet_id      = aws_subnet.private_subnet_memos_b.id
     route_table_id = aws_route_table.rt_NAT.id
 }

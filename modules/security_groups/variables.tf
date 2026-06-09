@@ -60,3 +60,14 @@ variable "ecs_from_port" {
 variable "ecs_to_port" {
     description = "To Port for ALB SG Inbound Rules"
 }
+
+variable "ecs_outbound_cidr_ipv4" {
+    description = "CIDR for ECS SG Outbound Rules"
+    type = string
+}
+
+variable "ecs_outbound_ip_protocol" {
+    description = "IP Type for ECS SG Outbound Rules"
+}
+
+

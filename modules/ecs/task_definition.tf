@@ -16,8 +16,8 @@ resource "aws_ecs_task_definition" "service" {
       essential            = true
       portMappings         = [
         {
-          containerPort    = 8081
-          hostPort         = 8081
+          containerPort    = 5230
+          hostPort         = 5230
         }
       ]
       mountPoints = [{
@@ -25,6 +25,15 @@ resource "aws_ecs_task_definition" "service" {
           containerPath    = var.container_mount_path
           readOnly         = false
         }]
+      logConfiguration = {
+      logDriver = "awslogs"
+
+      options = {
+        awslogs-group         = "/ecs/memos"
+        awslogs-region        = "eu-west-2"
+        awslogs-stream-prefix = "ecs"
+      }
     }
-  ])    
+  }
+])
 }

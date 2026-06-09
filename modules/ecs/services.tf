@@ -21,6 +21,6 @@ resource "aws_ecs_service" "ecr_memo_service" {
   load_balancer {
     target_group_arn                = var.target_group_arn
     container_name                  = "ecs"
-    container_port                  = 8081
+    container_port                  = 5230
   }
 }
