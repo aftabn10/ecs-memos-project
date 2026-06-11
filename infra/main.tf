@@ -19,7 +19,8 @@ module "vpc" {
 module "security_groups" {
   source                    = "../modules/security_groups"
   vpc_id                    = module.vpc.vpc_id
-  memos_alb_sg_name         = "memos_alb_sg"
+  # AlB Security Group
+  memos_alb_sg_name         = "memos-alb-sg"
   memos_alb_sg_description  = "Security Group for Memos ALB"
   inbound_cidr_ipv4         = "0.0.0.0/0"
   inbound_ip_protocol       = "tcp"
@@ -27,11 +28,12 @@ module "security_groups" {
   alb_to_port               = "80" 
   outbound_cidr_ipv4        = "0.0.0.0/0"
   outbound_ip_protocol      = "-1"
-  memos_ecs_sg_name         = "memos_ecs_sg"
+  # ECS Security Group
+  memos_ecs_sg_name         = "memos-ecs-sg"
   memos_ecs_sg_description  = "Security group for ECS ALB"
   ecs_inbound_ip_protocol   = "tcp"
-  ecs_from_port             = 5230
-  ecs_to_port               = 5230
+  ecs_from_port             = 8081
+  ecs_to_port               = 8081
   ecs_outbound_cidr_ipv4    = "0.0.0.0/0"
   ecs_outbound_ip_protocol  = "-1"
 }
