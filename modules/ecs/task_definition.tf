@@ -1,5 +1,5 @@
 resource "aws_ecs_task_definition" "service" {
-  family                   = "service"
+  family                   = "ecr-memos-app"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = var.task_definition_cpu
@@ -11,13 +11,13 @@ resource "aws_ecs_task_definition" "service" {
   }
   container_definitions    = jsonencode([
     {
-      name                 = "ecs"
+      name                 = "memos-container"
       image                = "${var.ecr_image_url}:v3"
       essential            = true
       portMappings         = [
         {
-          containerPort    = 5230
-          hostPort         = 5230
+          containerPort    = 8081
+          hostPort         = 8081
         }
       ]
       mountPoints = [{
@@ -29,7 +29,7 @@ resource "aws_ecs_task_definition" "service" {
       logDriver = "awslogs"
 
       options = {
-        awslogs-group         = "/ecs/memos"
+        awslogs-group         = "/ecs/ecr-memos-app"
         awslogs-region        = "eu-west-2"
         awslogs-stream-prefix = "ecs"
       }
