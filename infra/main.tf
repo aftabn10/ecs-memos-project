@@ -47,7 +47,7 @@ module "alb" {
   alb_security_group_id     = module.security_groups.alb_security_group_id
   public_subnet_ids         = module.vpc.public_subnet_ids
   ip_tg_name                = "memos-tg"
-  ip_tg_port                = 5230
+  ip_tg_port                = 8081
   ip_tag_protocol           = "HTTP"
   ip_target_type            = "ip"
   tg_health_check_path      = "/healthz"
@@ -68,7 +68,8 @@ module "ecs" {
   task_role_arn             = null
   ecs_fargate_cluster_name  = "memos-fargate-cluster"
   volume_name               = "memos-data"
-  container_mount_path      = "/var/opt/memos"
+  container_mount_path      = "~/.memos:/var/opt/memos"
+  # services
   service_name              = "ecr-memo-service"
   service_launch_type       = "FARGATE"
   service_desired_count     = 1
