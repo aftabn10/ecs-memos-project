@@ -63,6 +63,15 @@ module "iam" {
   source = "../modules/iam"
 }
 
+module "route53" {
+  source      = "../modules/route53"
+  record_name = "tm"
+  domain_name = "aftabn10.co.uk"
+
+  dns_name    = module.alb.alb_dns_name
+  alb_zone_id = module.alb.alb_zone_id
+}
+
 module "ecs" {
   source                   = "../modules/ecs"
   ecr_image_url            = "905674322808.dkr.ecr.eu-west-2.amazonaws.com/ecr-memos-app"

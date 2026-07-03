@@ -1,4 +1,4 @@
-resource "aws_lb" "memos-alb" {
+resource "aws_lb" "memos_alb" {
   name                = var.alb_name
   internal            = var.alb_internal
   load_balancer_type  = var.alb_type
@@ -30,7 +30,7 @@ health_check {
 }
 
 resource "aws_lb_listener" "http_listener" {
-  load_balancer_arn = aws_lb.memos-alb.arn
+  load_balancer_arn = aws_lb.memos_alb.arn
   port              = var.listener_port
   protocol          = var.listener_protocol
 
