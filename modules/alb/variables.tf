@@ -69,3 +69,17 @@ variable "listener_protocol" {
   type    = string
   default = "HTTP"
 }
+
+variable "https_listener_port" {
+  type    = number
+  default = 443
+}
+
+variable "https_listener_protocol" {
+  type    = string
+  default = "HTTP"
+}
+
+variable "certificate_arn" {
+  type = string
+}

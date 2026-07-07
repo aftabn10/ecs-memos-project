@@ -25,6 +25,15 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
   ip_protocol       = var.outbound_ip_protocol
 }
 
+# Allow HTTPS (port 443) for ALB
+resource "aws_vpc_security_group_ingress_rule" "memos_alb_https_inbound" {
+  security_group_id = aws_security_group.memos_alb_sg.id
+  cidr_ipv4         = var.https_inbound_cidr_ipv4
+  ip_protocol       = var.https_inbound_ip_protocol
+  from_port         = var.https_from_port
+  to_port           = var.https_to_port
+}
+
 #####################################################################
 
 # # Base SG for ECS ALB

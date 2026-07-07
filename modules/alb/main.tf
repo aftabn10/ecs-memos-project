@@ -40,3 +40,18 @@ resource "aws_lb_listener" "http_listener" {
   }
 }
 
+################################################################################
+# create a listener on port 80 with redirect action
+################################################################################
+resource "aws_lb_listener" "https_listener" {
+  load_balancer_arn = aws_lb.memos_alb.arn
+  port              = var.https_listener_port
+  protocol          = var.https_listener_protocol
+
+  certificate_arn = var.certificate_arn
+  
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ip_target_group.arn
+  }
+}

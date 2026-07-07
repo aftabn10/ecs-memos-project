@@ -22,10 +22,12 @@ variable "inbound_ip_protocol" {
 }
 
 variable "alb_from_port" {
+    type = number
     description = "From Port for ALB SG Inbound Rules"
 }
 
 variable "alb_to_port" {
+    type = number
     description = "To Port for ALB SG Inbound Rules"
 }
 
@@ -36,6 +38,26 @@ variable "outbound_cidr_ipv4" {
 
 variable "outbound_ip_protocol" {
     description = "IP Type for ALB SG Outbound Rules"
+}
+
+# Variables for HTTPS Inbound Rules
+variable "https_inbound_cidr_ipv4" {
+    description = "CIDR for ALB SG Inbound Rules"
+    type = string
+}
+
+variable "https_inbound_ip_protocol" {
+    description = "IP Type for ALB SG Inbound Rules"
+}
+
+variable "https_from_port" {
+    type = number
+    description = "From Port for ALB SG Inbound Rules"
+}
+
+variable "https_to_port" {
+    type = number
+    description = "To Port for ALB SG Inbound Rules"
 }
 
 variable "memos_ecs_sg_name" {
