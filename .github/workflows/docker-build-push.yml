@@ -3,6 +3,7 @@ on:
   push:
     paths:
     - 'app/memos/**'
+    - '.github/workflows/docker-build-push.yml'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,7 +29,7 @@ jobs:
       id: meta
       with:
         images: |
-          - ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}
+          ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}
         tags: | 
           type=sha,format=short
     
