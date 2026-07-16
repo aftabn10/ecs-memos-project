@@ -2,7 +2,7 @@ name: Docker Build and Push to ECR
 on: 
   push:
     paths:
-    - 'ecs-memos-project/**'
+    - 'app/memos/**'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -35,7 +35,7 @@ jobs:
     - name: Build and Push
       uses: docker/build-push-action@v5
       with:
-        context: ./ecs-memos-project/app/memos
+        context: ./app/memos
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
