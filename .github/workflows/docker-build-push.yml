@@ -4,6 +4,11 @@ on:
     paths:
     - 'app/memos/**'
     - '.github/workflows/docker-build-push.yml'
+
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
