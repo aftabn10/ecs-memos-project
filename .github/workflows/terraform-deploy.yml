@@ -1,0 +1,41 @@
+name: Terraform Deploy
+on: 
+  push:
+    paths:
+    - 'infra/**'
+    - 'modules/**'
+    - '.github/workflows/terraform-deploy.yml'
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./infra
+
+    steps:  
+    - name: Checkout code
+      uses: actions/checkout@v7
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v6.2.1
+      with:
+        role-to-assume: ${{ secrets.AWS_ECS_IAM_ROLE }}
+        aws-region: eu-west-2
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v4
+      with:
+        terraform_version: 1.7.6
+
+    - name: Terraform Init
+      id: init
+      run: terraform init -input=false
+
+    - name: Terraform Plan
+      id: plan
+      run: terraform plan -no-color -input=false
+    
+    - name: Terraform Apply
+      id: apply
+      run: terraform apply -no-color -input=false -auto-approve
