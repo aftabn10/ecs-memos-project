@@ -44,3 +44,4 @@ jobs:
     - name: Terraform Apply
       id: apply
       run: terraform apply -no-color -input=false -auto-approve
+      
