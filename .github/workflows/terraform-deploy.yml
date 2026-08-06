@@ -5,6 +5,8 @@ on:
       - 'infra/**'
       - 'modules/**'
       - '.github/workflows/terraform-deploy.yml'
+  
+  workflow_dispatch:
 
 permissions:
   id-token: write

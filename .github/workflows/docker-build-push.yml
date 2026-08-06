@@ -4,6 +4,8 @@ on:
     paths:
     - 'app/memos/**'
     - '.github/workflows/docker-build-push.yml'
+  
+  workflow_dispatch:
 
 permissions:
   id-token: write
