@@ -1,0 +1,39 @@
+name: Terraform Post Deploy Check
+on: 
+  workflow_run: 
+    workflows: [Terraform Deploy]
+    types: [completed]
+
+  workflow_dispatch:
+
+jobs:
+  on-success:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - run: echo "Terraform deployment completed successfully."
+      - name: Post Deployment Check
+        uses: jtalk/url-health-check-action@v5
+        with:
+          # curl the following URL to check if the deployment was successful
+          urls: http://tm.aftabn10.co.uk/healthz
+          # Fail this action after this many failed attempts
+          max-attempts: 5
+          # Delay between each attempt in seconds
+          retry-delay: 10s
+    
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./infra
+
+  on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - run: echo "Terraform deployment failed."
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./infra
+
