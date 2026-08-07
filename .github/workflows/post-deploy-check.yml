@@ -17,7 +17,7 @@ jobs:
         uses: jtalk/url-health-check-action@v5
         with:
           # curl the following URL to check if the deployment was successful
-          urls: http://tm.aftabn10.co.uk/healthz
+          url: http://tm.aftabn10.co.uk/healthz
           # Fail this action after this many failed attempts
           max-attempts: 5
           # Delay between each attempt in seconds
