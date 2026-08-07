@@ -9,6 +9,7 @@ on:
 jobs:
   on-success:
     runs-on: ubuntu-latest
+    # ADDED OVERRIDE for testing
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - run: echo "Terraform deployment completed successfully."
@@ -21,19 +22,9 @@ jobs:
           max-attempts: 5
           # Delay between each attempt in seconds
           retry-delay: 10s
-    
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./infra
 
   on-failure:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
     steps:
       - run: echo "Terraform deployment failed."
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./infra
-
