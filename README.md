@@ -43,6 +43,8 @@ https://tm.aftabn10.co.uk
 
 ![image](images/memos-app.png)
 
+---
+
 ## Table of Contents
 
 - [1. Application Setup](#1-application-setup)
@@ -53,6 +55,8 @@ https://tm.aftabn10.co.uk
 - [6. CI/CD Automation](#6-cicd-automation)
 - [7. HTTPS and Domain Validation](#7-https-and-domain-validation)
 - [8. Summary](#8-summary)
+
+---
 
 # 1. Application Setup
 
