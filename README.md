@@ -242,3 +242,33 @@ docker build -t memos:v1 .
 ```
 In the CI/CD pipeline, the Docker image is instead tagged using the **Git commit SHA**, allowing each deployment to be associated with a specific version of the source code.
 
+# 3. Image Registry: Amazon ECR
+
+Once the Memos application had been successfully containerised, the next step was to store the Docker image in a container registry so that it could later be retrieved by Amazon ECS.
+
+For this project I selected **Amazon Elastic Container Registry (ECR)**, as the final application would be deployed to Amazon ECS/Fargate.
+
+## Creating the ECR Repository
+
+I created an ECR repository called:
+
+`ecr-memos-app`
+
+The repository was configured with:
+
+- Mutable image tags
+- AES-256 encryption
+- Amazon ECR as the container registry
+
+The repository can be verified using the AWS CLI:
+
+```bash
+aws ecr describe-repositories
+```
+The repository returned:
+```bash
+repositoryName: ecr-memos-app
+imageTagMutability: MUTABLE
+encryptionType: AES256
+```
+Screenshot: Add screenshot of the ECR Repo here.
