@@ -625,7 +625,7 @@ The workflow uses OIDC to authenticate GitHub Actions with AWS, avoiding the nee
 
 ### Successful Terraform Deployment
 
-The Terraform deployment completed successfully:
+The Terraform deployment completed the Terraform - Deploy pipeline successfully:
 ![TF Pipeline](images/terraform-deploy-pipeline.png)
 
 ### Post-Deployment Check
@@ -665,6 +665,7 @@ Terraform / IaC
    ↓
 Automated deployment
 ```
+### Successful Terraform Destroy
 
 The destroy workflow successfully removed the Terraform-managed infrastructure:
 ![TF Pipeline](images/terraform-destroy-success.png)
@@ -751,7 +752,7 @@ This confirmed that:
 
 # 8. Summary
 
-Repository Structure
+### Repository Structure
 
 The repository contains the application, Docker configuration, Terraform infrastructure and GitHub Actions workflows used to deploy the application:
 ```text
@@ -823,7 +824,7 @@ The Docker image can be tagged and pushed to the ECR repository.
 
 The production CI/CD pipeline automatically builds and pushes images using the Git commit SHA as the image tag.
 
-##Terraform
+### Terraform
 
 The AWS infrastructure can be provisioned using Terraform:
 ```bash
@@ -845,7 +846,7 @@ The workflows:
 
 The deployment workflows use GitHub Actions OIDC to authenticate with AWS without storing long-lived AWS access keys.
 
-Final Application
+### Final Application
 
 The completed application is available at:
 
