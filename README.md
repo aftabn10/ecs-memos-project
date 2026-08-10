@@ -87,173 +87,150 @@ This confirmed that the application was running successfully and that its health
 
 # 2. Containerisation
 
-Once the Memos application had been verified locally, the next step was to containerise the application using Docker.
+The Memos application was containerised using Docker with a multi-stage Dockerfile.
 
-The containerisation follows several best practices required by the project:
+The container was designed to meet the project requirements of:
 
-- Multi-stage Docker build
+- Multi-stage build
 - Lightweight runtime image
-- Non-root application user
-- `.dockerignore` file
+- Non-root user
+- .dockerignore
 - Application data directory
-- Local container verification
+- Ability to run the application locally as a container
 
 ## Dockerfile
 
-The Dockerfile is located within the Memos application directory:
+The Dockerfile uses two stages:
 
 ```text
-app/
-└── memos/
-    ├── Dockerfile
-    ├── .dockerignore
-    └── ...
+Builder Stage
+     ↓
+Compile Go application
+     ↓
+Runtime Stage
+     ↓
+Run compiled binary
 ```
-The Dockerfile uses a multi-stage build, separating the application build environment from the final runtime environment.    
 
 ## Builder stage
 
 The builder stage uses a Go Alpine image to compile the Memos application.
 
-The Dockerfile first copies go.mod and go.sum and downloads the Go dependencies. Copying these files separately allows Docker to cache the dependency layer and avoid downloading the dependencies again when only application source code changes.
+The Dockerfile copies go.mod and go.sum separately before copying the rest of the application source code. This allows Docker to cache the dependency layer when the application source code changes but the dependencies remain the same.
 
-The remaining application source code is then copied into the builder stage and compiled into the application binary.
+The application is then compiled into a binary.
 
 ## Runtime stage
 
-The runtime stage uses a lightweight Alpine image rather than the larger Go build image.
+The runtime stage uses a lightweight Alpine image rather than including the complete Go build environment.
 
-Only the compiled application binary is copied from the builder stage into the final runtime image. This reduces the size of the final image and removes unnecessary build dependencies from the runtime environment.
+The runtime image:
 
-The runtime image also:
+- Copies the compiled application binary from the builder stage
+- Creates a dedicated non-root user and group
+- Creates the application's data directory
+- Assigns ownership of the data directory to the application user
+- Runs the application as the non-root user
+- Exposes the application port
 
-Creates a dedicated non-root user and group
-Creates the application's data directory
-Assigns ownership of the data directory to the application user
-Runs the application as the non-root user
-Exposes the application port
-Starts the compiled Memos application
-
-Running the application as a non-root user reduces the privileges available to the application inside the container and follows container security best practices.
+Running the application as a non-root user reduces the privileges available to the application inside the container.
 
 ## .dockerignore
 
-A .dockerignore file is included to prevent unnecessary files from being sent to Docker as part of the build context.
+A `.dockerignore` file is included to prevent unnecessary files from being sent to Docker as part of the build context.
 
-This reduces the amount of data transferred during the build and prevents files that are not required by the application from being included in the build context.
+This helps reduce the build context and prevents files that are not required by the application from being included during the image build.
 
-## Building the Docker Image
+## Building the Image
 
-The image was built locally using:
+The Docker image can be built from the Memos application directory using:
 ```bash
-docker build -t memos:v1 .
+docker build -t memos .
 ```
 
-The result image can be inspected using:
+The resulting image was checked using:
 ```bash
 docker images
 ```
 
-The final image was approximately 28 MB, demonstrating the benefit of using a multi-stage build and lightweight Alpine runtime image.
+The final image was approximately 28 MB, providing a relatively small runtime footprint.
 
-## Running the Container
+## Running Memos as a Container
 
-During the initial containerisation testing, I experimented with different port mappings and application configurations.
+Memos requires a data directory for its application data. The container therefore mounts a local directory to the application's data directory.
 
-The first configuration used:
-```bash
-docker run -d -p 80:8081 memos
-```
-
-Although the container started, accessing the application through the browser resulted in:
-```text
-No embeddable frontend found
-```
-
-The application's health endpoint was also tested during this process.
-
-After reviewing the Memos documentation and testing the application using its documented Docker configuration, I found that Memos uses port 5230 for its containerised application.
-
-The final local container was therefore run using:
+The application is run using port 5230:
 ```bash
 docker run -d \
   -p 5230:5230 \
   -v ~/.memos:/var/opt/memos \
-  memos:v1
+  memos
 ```
-
-The configuration:
-
-- Maps host port `5230` to container port `5230`
-- Mounts `~/.memos to /var/opt/memos`
-- Provides persistent application data outside the container filesystem
-
-The running container was verified using:
+The application can then be accessed locally at:
+```bash
+http://localhost:5230
+```
+The container can be checked using:
 ```bash
 docker ps
 ```
 
-## Health Check
+## Container Health Check
 
-The containerised application was then tested using its `healthz` endpoint:
+The Memos health endpoint was verified from the running container:
 
 ```bash
 curl -v http://localhost:5230/healthz
 ```
 
-The application returned:
+The endpoint returned a successful response:
 ```bash
-HTTP/1.1 200 OK
-Content-Type: text/plain; charset=UTF-8
-
-Service ready.
+Service Ready.
 ```
 ![image](images/localhost-success.jpg)
 
-This confirmed that the Memos application was successfully running inside the Docker container.
-
-The application frontend was also accessible at:
-```text
-http://localhost:5230
-```
-and the Memos interface was successfully displayed after logging in.
+This confirmed that the Memos application was running successfully inside the Docker container.
 
 ![image](images/localhost_memos_5230.jpg)
 
-## Container Image
+## Container Security
 
-The final Docker image was approximately 28 MB.
+The final Docker image does not run the Memos application as the root user.
 
-The use of a multi-stage build means that the final runtime image contains the compiled application and the dependencies required to run it, rather than the complete Go build environment.
+A dedicated application user is created during the runtime stage and the application is executed using that user.
 
-This provides a smaller runtime image while also reducing the attack surface of the container.
+This follows the principle of running containers with the minimum privileges required.
 
 # 3. Image Registry: Amazon ECR
 
-Once the Memos application had been successfully containerised and tested locally, the next step was to store the Docker image in a container registry.
+Once the Docker image had been successfully tested locally, it was pushed to **Amazon Elastic Container Registry (ECR)**.
 
-For this project I used Amazon Elastic Container Registry (ECR), which integrates directly with Amazon ECS and allows ECS tasks to pull the container image from AWS.
+ECR was selected because it integrates directly with Amazon ECS/Fargate and provides a private registry for storing the container image used by the ECS task.
 
-## Creating the ECR Repository
+## ECR Repository
 
-The ECR repository was initially created manually through the AWS Console as part of the ClickOps stage of the project.
+An ECR repository was created for the Memos application:
+```text
+ecr-memos-app
+```
+The repository uses:
 
-The repository was configured with:
+- Mutable image tags
+- AES-256 encryption
 
-Repository name: `ecr-memos-app`
-Region: `eu-west-2`
-Tag mutability: `Mutable`
-Encryption: `AES-256`
-
-The repository provides a location for storing the Docker images that will later be used by the ECS/Fargate service.
-
+The repository URI follows the standard AWS ECR format:
+```text
+<account-id>.dkr.ecr.<region>.amazonaws.com/ecr-memos-app
+```
 ![ECR Repo](images/ecr-repo.jpg)
 
 ## Authenticating Docker with ECR
 
-Before pushing an image, Docker needs to authenticate with the ECR registry.
+Docker was authenticated against the ECR registry using the AWS CLI.
 
-The AWS CLI was used to authenticate Docker:
+The authentication process generates a temporary authentication token and uses it to log Docker into the ECR registry.
+
+For example:
 ```bash
 aws ecr get-login-password --region eu-west-2 | \
 docker login --username AWS --password-stdin <account-id>.dkr.ecr.eu-west-2.amazonaws.com
@@ -263,76 +240,326 @@ A successful authentication returns:
 ```text
 Login Succeeded.
 ```
+## Tagging the Image
 
-The authentication token generated by ECR is temporary and therefore needs to be refreshed when it expires.
+The Docker image was tagged using a version identifier before being pushed to ECR.
 
-*Note*: Local AWS CLI authentication was used during the initial development and testing of the project. The final CI/CD pipeline does not use long-lived AWS access keys. GitHub Actions authenticates to AWS using OIDC, which is covered in Section 6 - CI/CD Automation.
-
-## Building and Tagging the Image
-
-The Docker image was built locally and given a version tag:
+For example:
 ```bash
 docker build -t ecr-memos-app:v1 .
 ```
-The image then needed to be tagged with the full ECR repository URI:
+The image was then tagged with the ECR repository URI:
 ```bash
 docker tag ecr-memos-app:v1 \
-<account-id>.dkr.ecr.eu-west-2.amazonaws.com/ecr-memos-app:v1
+  <account-id>.dkr.ecr.eu-west-2.amazonaws.com/ecr-memos-app:v1
 ```
-This associates the local Docker image with the remote ECR repository.
-
 ## Pushing the Image
 
-The image was then pushed to ECR:
+The tagged image was pushed to ECR:
 ```bash
 docker push \
-<account-id>.dkr.ecr.eu-west-2.amazonaws.com/ecr-memos-app:v1
+  <account-id>.dkr.ecr.eu-west-2.amazonaws.com/ecr-memos-app:v1
 ```
-The image was successfully uploaded to the ECR repository.
-
-## Verifying the Repository
-
-The AWS CLI can be used to verify that the ECR repository exists:
+The image can then be verified using:
 ```bash
-aws ecr describe-repositories
+aws ecr describe-images \
+  --repository-name ecr-memos-app
 ```
-The repository was returned with the following configuration:
-```bash
-Repository: ecr-memos-app
-Region: eu-west-2
-Tag mutability: MUTABLE
-Encryption: AES256
-```
-The images stored in the repository can also be inspected using:
-```bash
-aws ecr describe-images --repository-name ecr-memos-app
-```
-The repository contained the pushed image with the v1 tag.
+The repository successfully contained the pushed image and its associated image digest.
 
 ## Image Versioning
 
-During the initial development of the project, version tags such as:
-```text
-v1
-v2
-v3
-```
-were used while testing changes to the Docker image.
+During the initial manual testing, version tags such as v1, v2 and v3 were used while making changes to the Docker image.
 
-For the final CI/CD implementation, the image is tagged using the **Git commit SHA** rather than relying on `latest`.
+For the final automated deployment process, the image is tagged using the Git commit SHA.
 
-This provides a direct relationship between:
+This provides an immutable reference between a GitHub commit and the Docker image deployed to ECS.
+
+The final deployment flow is therefore:
 ```text
-Git commit
+GitHub Commit
       ↓
-Docker image
+GitHub Actions
       ↓
-ECR image
+Docker Build
       ↓
-ECS deployment
+Image tagged with Git SHA
+      ↓
+Amazon ECR
+      ↓
+Amazon ECS/Fargate
 ```
-For example:
+
+# 4. AWS Infrastructure - ClickOps
+
+Before introducing Terraform, the AWS infrastructure was created manually using the AWS Management Console.
+
+The purpose of this stage was to understand how the individual AWS services interact and how traffic flows through the application before converting the infrastructure into Infrastructure as Code.
+
+The process followed:
+```text
+User
+  ↓
+Route 53
+  ↓
+Application Load Balancer
+  ↓
+ECS/Fargate
+  ↓
+Memos Container
+```
+
+## AWS Services Created
+
+The initial infrastructure consisted of:
+
+- Amazon VPC
+- Public subnets
+- Internet Gateway
+- Security groups
+- Amazon ECR
+- Amazon ECS cluster
+- ECS/Fargate task definition
+- ECS service
+- Application Load Balancer
+- ALB target group
+- ALB listeners
+- AWS Certificate Manager certificate
+- Route 53 DNS record
+- IAM roles required by ECS
+- ECR
+
+The Memos Docker image previously pushed to Amazon ECR was used as the container image for the ECS task.
+
+The ECS task definition referenced the image stored in the ECR repository.
+
+## ECS/Fargate
+
+An ECS cluster was created using AWS Fargate as the compute platform.
+
+Fargate was used so that the application could run as a container without having to provision or manage EC2 instances.
+
+The ECS service was configured to maintain the desired number of running tasks.
+
+## Application Load Balancer
+
+An Application Load Balancer was placed in front of the ECS service.
+
+The ALB provides the entry point for external traffic and forwards requests to the ECS task through a target group.
+
+The target group was configured to perform health checks against the application.
+
+## Networking
+
+The ECS service and Application Load Balancer were deployed within the VPC.
+
+Security groups were used to control network access between the internet, load balancer and ECS service.
+
+The overall traffic flow was:
+```text
+Internet
+   ↓
+ALB
+   ↓
+ECS Service
+   ↓
+Fargate Task
+   ↓
+Memos Container
+```
+## HTTPS and DNS
+
+AWS Certificate Manager was used to provide the TLS certificate for the application domain.
+
+A Route 53 record was then configured to point the application domain to the Application Load Balancer.
+
+The application was made available through:
+```text
+https://tm.aftabn10.co.uk
+```
+## ClickOps Verification
+
+Once all components had been configured, the application was accessed through the public domain to verify that the complete AWS infrastructure was working.
+
+The ClickOps deployment successfully demonstrated that:
+
+- The Docker image could run on ECS/Fargate
+- The ALB could route traffic to the ECS task
+- The application was reachable through the public domain
+- HTTPS was working
+- Route 53 was resolving the domain correctly
+
+## Why Destroy the ClickOps Infrastructure?
+
+Once the manual deployment had been successfully verified, the infrastructure was deliberately torn down.
+
+This was an important part of the project because the next stage was to recreate the same environment using Terraform.
+
+The progression was therefore:
+```text
+Manual AWS Infrastructure
+          ↓
+       Verify
+          ↓
+       Destroy
+          ↓
+Recreate using Terraform
+```
+This provided a direct comparison between manually created infrastructure and Infrastructure as Code.
+
+# 5. AWS Infrastructure - Terraform
+
+After completing the ClickOps deployment, the AWS infrastructure was recreated using Terraform.
+
+The objective was to reproduce the same environment in a repeatable and version-controlled way rather than relying on manually configured AWS resources.
+
+The Terraform configuration is contained within the infra/ directory.
+
+## Terraform Structure
+
+The infrastructure was separated into Terraform modules rather than being maintained as a single large configuration.
+
+The structure is broadly:
+```text
+infra/
+├── main.tf
+├── provider.tf
+├── variables.tf
+├── outputs.tf
+└── modules/
+    ├── vpc/
+    ├── ecs/
+    ├── alb/
+    ├── ecr/
+    └── acm/
+```
+This separates the main infrastructure configuration from individual AWS components and makes the configuration easier to maintain.
+
+## Terraform Provider
+
+Terraform uses the AWS provider to provision resources within the AWS environment.
+
+The deployment region used for the project is:
+```text
+eu-west-2
+```
+## VPC and Networking
+
+Terraform provisions the networking required by the application, including:
+
+- VPC
+- Public subnets
+- Internet Gateway
+- Route tables
+- Subnet associations
+
+The networking configuration provides the connectivity required by the ALB and ECS/Fargate service.
+
+## Amazon ECR
+
+The ECR repository is managed through Terraform so that the container registry becomes part of the infrastructure definition.
+
+The ECS task can then reference the image stored in this repository.
+
+## ECS and Fargate
+
+Terraform provisions:
+
+- ECS cluster
+- ECS task definition
+- ECS service
+- Fargate configuration
+
+The task definition specifies the Memos container, including its image, port configuration and required IAM permissions.
+
+The ECS service maintains the desired number of running tasks.
+
+## Application Load Balancer
+
+Terraform provisions the ALB infrastructure, including:
+
+- Application Load Balancer
+- Target group
+- Listeners
+- Listener configuration
+- Security groups
+
+The target group allows the ALB to determine whether the ECS task is healthy before sending traffic to it.
+
+## IAM
+
+IAM roles are provisioned for the ECS workload.
+
+These roles provide the permissions required by the ECS task without relying on long-lived credentials embedded within the application or container.
+
+The infrastructure follows the principle of granting workloads only the permissions required for their operation.
+
+## HTTPS and Route 53
+
+Terraform also manages the application's HTTPS and DNS configuration.
+
+This includes:
+
+- ACM certificate
+- Certificate validation
+- Route 53 record
+- ALB listener configuration
+
+The final application is available through:
+```text
+https://tm.aftabn10.co.uk
+```
+
+## Terraform Remote State
+
+Terraform state is stored remotely rather than being maintained only on the local machine.
+
+The project uses:
+
+- Amazon S3 for Terraform remote state
+- DynamoDB for Terraform state locking
+
+This allows the Terraform state to persist independently of the machine running Terraform and prevents multiple Terraform operations from modifying the state simultaneously.
+
+The remote state was particularly important when moving the Terraform deployment into GitHub Actions.
+
+The GitHub Actions runner can run:
 ```bash
-ecr-memos-app:<git-commit-sha>
+terraform init
 ```
-This makes it possible to identify exactly which version of the application has been deployed.
+and retrieve the existing remote state before performing:
+```bash
+terraform plan
+terraform apply
+terraform destroy
+```
+
+This means the CI/CD runner does not need to have previously created the infrastructure itself in order to understand the existing Terraform-managed resources.
+
+## Terraform Validation
+
+Before applying the infrastructure, the configuration is checked using:
+```bash
+terraform fmt -check -recursive
+```
+and
+```bash
+terraform validate
+```
+Terraform then generates an execution plan:
+```bash
+terraform plan
+```
+The infrastructure can subsequently be deployed using:
+```bash
+terraform apply
+```
+## Terraform Destroy
+
+The infrastructure can also be removed using:
+
+terraform destroy
+
+A dedicated GitHub Actions workflow was later created to perform Terraform destruction manually with an additional confirmation input.
+
+This provides a controlled way of removing the infrastructure while still allowing Terraform to use the existing remote state.
