@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project demonstrates the deployment of the open-source Memos application to AWS using Docker, Amazon ECS/Fargate and Terraform.
+This project demonstrates the deployment of the open-source **Memos** application to AWS using Docker, Amazon ECS/Fargate and Terraform.
 
 The project follows the progression recommended for the ECS project:
 
@@ -25,7 +25,7 @@ The final deployment uses:
 - GitHub Actions OIDC for AWS authentication
 - Automated post-deployment health checks
 
-**Final Application**
+### Final Application
 
 The final application is available at:
 
@@ -39,20 +39,21 @@ https://tm.aftabn10.co.uk
 
 ## Application Selection
 
-For this project I selected *Memos*, an open-source self-hosted note-taking application written in Go.
+For this project I selected **Memos**, an open-source self-hosted note-taking application written in Go.
 
-I chose Memos because it provided a realistic lightweight application that could be containerised and deployed to ECS/Fargate, while allowing the focus of the project to remain on the infrastructure, containerisation and deployment rather than application development.
+I chose Memos because it provided a realistic, lightweight application that could be containerised and deployed to ECS/Fargate, while allowing the main focus of the project to remain on containerisation, AWS infrastructure and deployment rather than application development.
 
-*Application*: Memos
-*Language*: Go
-*Application documentation*: Use Memos documentation
-*Source code*: Use Memos GitHub repository
+- **Application:** Memos
+- **Language:** Go
+- **Application documentation:** [Memos Documentation](https://usememos.com/docs)
+- **Source code:** [Memos GitHub Repository](https://github.com/usememos/memos)
 
 ## Running Memos Locally
 
 Before introducing Docker or AWS infrastructure, I first verified that the application could run successfully on my local machine.
 
 I navigated to the application directory:
+
 ```bash
 cd ECS-Project/app/memos
 ```
@@ -66,19 +67,15 @@ http://localhost:80
 ```
 ## Health Endpoint
 
-The project specification requested a `/health` endpoint.
+The project specification requested a /health endpoint returning a successful health response.
 
-However, after inspecting the Memos source code, I found that the application actually exposes its health endpoint at:
+However, Memos uses a different health endpoint:
 ```bash
 /healthz
 ```
-I identified this by searching the source code:
-```bash
-grep -r "health" .
-```
-This identified the health endpoint in the Memos server configuration.
+After inspecting the application source code, I confirmed that /healthz is the endpoint exposed by the Memos server.
 
-The endpoint was then tested using:
+The endpoint was tested using:
 ```bash
 curl http://localhost:80/healthz
 ```
@@ -271,4 +268,4 @@ repositoryName: ecr-memos-app
 imageTagMutability: MUTABLE
 encryptionType: AES256
 ```
-Screenshot: Add screenshot of the ECR Repo here.
+![ECR Repo](images/ecr-repo.jpg)
