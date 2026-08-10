@@ -35,6 +35,14 @@ https://tm.aftabn10.co.uk
 
 ![image](images/memos-app.png)
 
+# Architecture
+
+> **Architecture diagram will be added here.**
+
+<!-- INSERT FINAL ARCHITECTURE DIAGRAM HERE -->
+
+The diagram shows the final AWS architecture and the flow of traffic from the user through Route 53, the Application Load Balancer and into the ECS/Fargate service.
+
 # 1. Application Setup
 
 ### Application Selection
@@ -295,19 +303,6 @@ Amazon ECS/Fargate
 Before introducing Terraform, the AWS infrastructure was created manually using the AWS Management Console.
 
 The purpose of this stage was to understand how the individual AWS services interact and how traffic flows through the application before converting the infrastructure into Infrastructure as Code.
-
-The process followed:
-```text
-User
-  ↓
-Route 53
-  ↓
-Application Load Balancer
-  ↓
-ECS/Fargate
-  ↓
-Memos Container
-```
 
 ### AWS Services Created
 
@@ -651,7 +646,7 @@ If the health check receives an unsuccessful HTTP response, the health-check act
 The final post-deployment check completed successfully:
 ![TF Pipeline](images/terraform-post-deploy-check-success.png)
 
-# Terraform Destroy
+### Terraform Destroy
 
 A separate Terraform Destroy workflow was also created for tearing down the AWS infrastructure when the environment is no longer required.
 
