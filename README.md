@@ -670,3 +670,81 @@ The destroy workflow successfully removed the Terraform-managed infrastructure:
 ![TF Pipeline](images/terraform-destroy-success.png)
 
 The destroy workflow is not part of the application deployment path, but provides a controlled way of removing the infrastructure created by Terraform.
+
+# 7. HTTPS and Domain Validation
+
+The final deployment is exposed using a custom domain with HTTPS.
+
+The following AWS services were used to provide secure access to the application:
+
+- Amazon Route 53 for DNS
+- AWS Certificate Manager (ACM) for the TLS certificate
+- Application Load Balancer (ALB) for HTTPS traffic
+
+## Custom Domain
+
+A Route 53 record was configured for:
+
+```text
+tm.aftabn10.co.uk
+```
+
+The record points to the Application Load Balancer using an alias record.
+
+This allows requests to the application to use the custom domain rather than the default AWS load balancer DNS name.
+
+## TLS Certificate
+
+An SSL/TLS certificate was provisioned using AWS Certificate Manager (ACM) for the application domain.
+
+DNS validation was used to validate ownership of the domain before the certificate was issued.
+
+The certificate was then associated with the ALB HTTPS listener on port 443.
+
+## HTTPS Traffic Flow
+
+The final request flow is:
+```text
+User
+  ↓
+https://tm.aftabn10.co.uk
+  ↓
+Route 53
+  ↓
+Application Load Balancer
+  ↓
+HTTPS / TLS termination
+  ↓
+ECS / Fargate
+  ↓
+Memos application
+```
+TLS is terminated at the Application Load Balancer. The ALB then forwards the request to the ECS task using HTTP on the container port.
+
+## Domain Verification
+
+The final application was accessed using:
+```text
+https://tm.aftabn10.co.uk
+```
+The Memos application was successfully served through the custom domain using HTTPS.
+
+The application's health endpoint can also be tested using
+```text
+curl -v https://tm.aftabn10.co.uk/healthz
+```
+The endpoint returned a successful HTTP response:
+```text
+HTTP/1.1 200 OK
+```
+with the Memos health response:
+```text
+Service ready.
+```
+This confirmed that:
+
+- The custom domain resolves successfully
+- Route 53 is pointing to the ALB
+- The ACM certificate is being used for HTTPS
+- The ALB can successfully forward traffic to the ECS service
+- The Memos application is responding successfully
