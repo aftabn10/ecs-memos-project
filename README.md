@@ -87,157 +87,147 @@ This confirmed that the application was running successfully and that its health
 
 # 2. Containerisation
 
-The next stage was to containerise the Memos application using Docker.
+Once the Memos application had been verified locally, the next step was to containerise the application using Docker.
 
-The Memos application is written in Go, with its dependencies defined in go.mod and go.sum.
+The containerisation follows several best practices required by the project:
 
-The Docker image was designed as a multi-stage build, separating compilation from the runtime environment.
+- Multi-stage Docker build
+- Lightweight runtime image
+- Non-root application user
+- `.dockerignore` file
+- Application data directory
+- Local container verification
 
 ## Dockerfile
 
-The Dockerfile uses two stages:
+The Dockerfile is located within the Memos application directory:
+
+```text
+app/
+└── memos/
+    ├── Dockerfile
+    ├── .dockerignore
+    └── ...
+```
+The Dockerfile uses a multi-stage build, separating the application build environment from the final runtime environment.    
 
 ## Builder stage
 
-The builder stage:
+The builder stage uses a Go Alpine image to compile the Memos application.
 
-1. Uses a lightweight Go Alpine image as the build environment.
-2. Sets the working directory inside the container.
-3. Copies go.mod and go.sum before the rest of the source code.
-4. Downloads the Go dependencies.
-5. Copies the application source code.
-6. Compiles the application into a binary.
+The Dockerfile first copies go.mod and go.sum and downloads the Go dependencies. Copying these files separately allows Docker to cache the dependency layer and avoid downloading the dependencies again when only application source code changes.
 
-Copying `go.mod` and `go.sum` before the application source allows Docker to take advantage of layer caching when the application dependencies have not changed.
+The remaining application source code is then copied into the builder stage and compiled into the application binary.
 
 ## Runtime stage
 
-The runtime stage uses a lightweight Alpine image rather than retaining the complete Go build environment.
+The runtime stage uses a lightweight Alpine image rather than the larger Go build image.
 
-It:
+Only the compiled application binary is copied from the builder stage into the final runtime image. This reduces the size of the final image and removes unnecessary build dependencies from the runtime environment.
 
-1. Copies the compiled application binary from the builder stage.
-2. Creates a dedicated non-root user and group.
-3. Creates the application's data directory.
-4. Assigns ownership of the data directory to the non-root user.
-5. Switches the container to run as the non-root user.
-6. Exposes port `5230`.
-7. Starts the compiled Memos application.
+The runtime image also:
 
-Running the application as a non-root user reduces the security risk associated with running the application with root privileges inside the container.
+Creates a dedicated non-root user and group
+Creates the application's data directory
+Assigns ownership of the data directory to the application user
+Runs the application as the non-root user
+Exposes the application port
+Starts the compiled Memos application
 
-## Application Data
+Running the application as a non-root user reduces the privileges available to the application inside the container and follows container security best practices.
 
-During the initial Docker testing, the application failed to start because Memos expected a data directory to be available.
+## .dockerignore
 
-The initial container run produced:
+A .dockerignore file is included to prevent unnecessary files from being sent to Docker as part of the build context.
+
+This reduces the amount of data transferred during the build and prevents files that are not required by the application from being included in the build context.
+
+## Building the Docker Image
+
+The image was built locally using:
 ```bash
-ERROR failed to check dsn data="" error="unable to access data folder : stat : no such file or directory"
+docker build -t memos:v1 .
 ```
-I reviewed the Memos documentation and found that the application uses `/var/opt/memos` for its persistent application data.
 
-A Docker volume was therefore mounted:
+The result image can be inspected using:
 ```bash
--v ~/.memos:/var/opt/memos
+docker images
 ```
-This maps the local `~/.memos` directory to `/var/opt/memos` inside the container.
 
-However, simply mounting the volume was not sufficient because the container also needed appropriate permissions to access the directory.
+The final image was approximately 28 MB, demonstrating the benefit of using a multi-stage build and lightweight Alpine runtime image.
 
-I tested several configurations while troubleshooting this.
+## Running the Container
 
-## Test 1: Volume without directory preparation
+During the initial containerisation testing, I experimented with different port mappings and application configurations.
+
+The first configuration used:
 ```bash
-docker run -d -p 80:8081 \
-  -v ~/.memos:/var/opt/memos \
-  memos
+docker run -d -p 80:8081 memos
 ```
-This resulted in:
-```bash
-unable to access data folder: stat : no such file or directory
-```
-## Test 2: Environment variable without directory ownership
 
-I also tested configuring the data directory through the environment variable:
-```bash
-MEMOS_DATA=/var/opt/memos
+Although the container started, accessing the application through the browser resulted in:
+```text
+No embeddable frontend found
 ```
-This resulted in a permissions error:
-```
-mkdir /var/opt/memos: permission denied
-```
-## Final solution
 
-The final Dockerfile creates the required directory and assigns ownership to the non-root user.
+The application's health endpoint was also tested during this process.
 
-This allowed the application to run successfully while still avoiding the use of the root user.
+After reviewing the Memos documentation and testing the application using its documented Docker configuration, I found that Memos uses port 5230 for its containerised application.
 
-The container was then started using:
+The final local container was therefore run using:
 ```bash
 docker run -d \
   -p 5230:5230 \
   -v ~/.memos:/var/opt/memos \
-  memos
+  memos:v1
 ```
+
+The configuration:
+
+- Maps host port `5230` to container port `5230`
+- Mounts `~/.memos to /var/opt/memos`
+- Provides persistent application data outside the container filesystem
+
 The running container was verified using:
 ```bash
 docker ps
 ```
-and the application logs were checked using:
-```bash
-docker logs <container-id>
-```
-The logs confirmed that the application had started successfully.
 
 ## Health Check
 
-The Memos application does not use the `/health` endpoint specified in the original project requirements.
+The containerised application was then tested using its `healthz` endpoint:
 
-After inspecting the application source code, I established that the health endpoint is:
-```bash
-/healthz
-```
-The running container was therefore tested using:
 ```bash
 curl -v http://localhost:5230/healthz
 ```
-The endpoint successfully returned:
+
+The application returned:
 ```bash
-Service Ready
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=UTF-8
+
+Service ready.
 ```
-This confirmed that the Memos application was running successfully inside the Docker container.
+![image](images/localhost-success.jpg)
 
-![Localhost Run](images/localhost-success.jpg)
+This confirmed that the Memos application was successfully running inside the Docker container.
 
-## Docker Image Size
-
-After successfully building the final image, the image size was checked using:
-```bash
-docker images
+The application frontend was also accessible at:
+```text
+http://localhost:5230
 ```
-The resulting image was approximately:
-```bash
-28.28 MB
-```
-Using a multi-stage build means the final runtime image does not contain the Go compiler and other build dependencies that were only required during compilation.
+and the Memos interface was successfully displayed after logging in.
 
-This helps keep the final image lightweight.
+![image](images/localhost_memos_5230.jpg)
 
-## Image Tagging
+## Container Image
 
-During development the image was built using:
-```bash
-docker build -t memos .
-```
-If no explicit version is provided, Docker uses the `latest` tag by default.
+The final Docker image was approximately 28 MB.
 
-For deployments, immutable tags are preferable because they allow a specific version of the application to be identified.
+The use of a multi-stage build means that the final runtime image contains the compiled application and the dependencies required to run it, rather than the complete Go build environment.
 
-For example:
-```bash
-docker build -t memos:v1 .
-```
-In the CI/CD pipeline, the Docker image is instead tagged using the **Git commit SHA**, allowing each deployment to be associated with a specific version of the source code.
+This provides a smaller runtime image while also reducing the attack surface of the container.
+
 
 # 3. Image Registry: Amazon ECR
 
