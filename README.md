@@ -228,6 +228,8 @@ A dedicated application user is created during the runtime stage and the applica
 
 This follows the principle of running containers with the minimum privileges required.
 
+[↑ Back to top](#top)
+
 # 3. Image Registry: Amazon ECR
 
 Once the Docker image had been successfully tested locally, it was pushed to **Amazon Elastic Container Registry (ECR)**.
@@ -316,6 +318,7 @@ Amazon ECR
       ↓
 Amazon ECS/Fargate
 ```
+[↑ Back to top](#top)
 
 # 4. AWS Infrastructure - ClickOps
 
@@ -420,6 +423,8 @@ Manual AWS Infrastructure
 Recreate using Terraform
 ```
 This provided a direct comparison between manually created infrastructure and Infrastructure as Code.
+
+[↑ Back to top](#top)
 
 # 5. AWS Infrastructure - Terraform
 
@@ -578,6 +583,8 @@ A dedicated GitHub Actions workflow was later created to perform Terraform destr
 
 This provides a controlled way of removing the infrastructure while still allowing Terraform to use the existing remote state.
 
+[↑ Back to top](#top)
+
 # 6. CI/CD Automation
 
 Once the infrastructure could be successfully recreated using Terraform, the deployment process was automated using GitHub Actions.
@@ -686,6 +693,8 @@ The destroy workflow successfully removed the Terraform-managed infrastructure:
 
 The destroy workflow is not part of the application deployment path, but provides a controlled way of removing the infrastructure created by Terraform.
 
+[↑ Back to top](#top)
+
 # 7. HTTPS and Domain Validation
 
 The final deployment is exposed using a custom domain with HTTPS.
@@ -763,6 +772,8 @@ This confirmed that:
 - The ACM certificate is being used for HTTPS
 - The ALB can successfully forward traffic to the ECS service
 - The Memos application is responding successfully
+
+[↑ Back to top](#top)
 
 # 8. Summary
 
@@ -867,3 +878,5 @@ The completed application is available at:
 https://tm.domain.co.uk
 
 The application was successfully verified using the custom domain and HTTPS.
+
+[↑ Back to top](#top)
