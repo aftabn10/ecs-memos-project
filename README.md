@@ -602,7 +602,7 @@ The image is tagged using the Git commit SHA rather than using latest.
 The workflow successfully completed the Docker build and push process:
 ![TF Pipeline](images/terraform-build-push-pipeline.png)
 
-erraform Deploy
+## Terraform Deploy
 
 The Terraform Deploy workflow is responsible for provisioning and updating the AWS infrastructure.
 
@@ -748,3 +748,107 @@ This confirmed that:
 - The ACM certificate is being used for HTTPS
 - The ALB can successfully forward traffic to the ECS service
 - The Memos application is responding successfully
+
+# 8. Summary
+
+Repository Structure
+
+The repository contains the application, Docker configuration, Terraform infrastructure and GitHub Actions workflows used to deploy the application:
+```text
+├── app/
+│   └── memos/                 # Memos application
+│       ├── Dockerfile
+│       └── .dockerignore
+│
+├── infra/                     # Terraform configuration
+│
+├── modules/                   # Reusable Terraform modules
+│
+├── packages/                  # Supporting project files
+│
+├── .github/
+│   └── workflows/             # GitHub Actions workflows
+│
+├── images/                    # Project screenshots
+│
+├── .gitignore
+└── README.md
+```
+The infrastructure is separated into reusable Terraform modules rather than being maintained as a single Terraform configuration.
+
+## Reproducing the Deployment
+
+The project can be reproduced by following the same progression used during development:
+```text
+Application
+     ↓
+Docker
+     ↓
+Amazon ECR
+     ↓
+AWS Infrastructure
+     ↓
+Terraform
+     ↓
+GitHub Actions
+     ↓
+ECS / Fargate
+     ↓
+HTTPS / Custom Domain
+```
+
+## Prerequisites
+
+The following tools are required to work through the project:
+
+- Git
+- Go
+- Docker
+- AWS CLI
+- Terraform
+- AWS account
+- GitHub repository
+
+## Application
+
+The Memos application can first be run locally to verify that it is working before introducing Docker or AWS infrastructure.
+
+## Docker
+
+The application can then be containerised using the provided Dockerfile and tested locally.
+
+## Amazon ECR
+
+The Docker image can be tagged and pushed to the ECR repository.
+
+The production CI/CD pipeline automatically builds and pushes images using the Git commit SHA as the image tag.
+
+##Terraform
+
+The AWS infrastructure can be provisioned using Terraform:
+```bash
+terraform init
+terraform plan
+terraform apply
+```
+Terraform provisions the infrastructure required to run the application on ECS/Fargate.
+
+## GitHub Actions
+
+Once the repository is configured, GitHub Actions automates the build and deployment process.
+
+The workflows:
+
+1. Build and push the Docker image to ECR.
+2. Deploy the infrastructure using Terraform.
+3. Perform a post-deployment health check.
+
+The deployment workflows use GitHub Actions OIDC to authenticate with AWS without storing long-lived AWS access keys.
+
+Final Application
+
+The completed application is available at:
+
+https://tm.domain.co.uk
+
+The application was successfully verified using the custom domain and HTTPS.
