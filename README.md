@@ -1,6 +1,6 @@
 # Memos on AWS ECS Deployment
 
-## Overview
+### Overview
 
 This project demonstrates the deployment of the open-source **Memos** application to AWS using Docker, Amazon ECS/Fargate and Terraform.
 
