@@ -626,7 +626,7 @@ The workflow uses OIDC to authenticate GitHub Actions with AWS, avoiding the nee
 ## Successful Terraform Deployment
 
 The Terraform deployment completed successfully:
-![TF Pipeline](images/terraform-build-push-pipeline.png)
+![TF Pipeline](images/terraform-deploy-pipeline.png)
 
 ## Post-Deployment Check
 
@@ -651,7 +651,7 @@ If the health check receives an unsuccessful HTTP response, the health-check act
 The final post-deployment check completed successfully:
 ![TF Pipeline](images/terraform-post-deploy-check-success.png)
 
-# Terraform Destory
+# Terraform Destroy
 
 A separate Terraform Destroy workflow was also created for tearing down the AWS infrastructure when the environment is no longer required.
 
