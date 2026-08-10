@@ -1,3 +1,5 @@
+<a id="top"></a>
+
 # Memos on AWS ECS Deployment
 
 ### Overview
@@ -49,14 +51,14 @@ https://tm.aftabn10.co.uk
 
 - [1. Application Setup](#1-application-setup)
 - [2. Containerisation](#2-containerisation)
-- [3. Image Registry](#3-image-registry)
+- [3. Image Registry: Amazon ECR](#3-image-registry-amazon-ecr)
 - [4. AWS Infrastructure - ClickOps](#4-aws-infrastructure---clickops)
 - [5. AWS Infrastructure - Terraform](#5-aws-infrastructure---terraform)
 - [6. CI/CD Automation](#6-cicd-automation)
 - [7. HTTPS and Domain Validation](#7-https-and-domain-validation)
 - [8. Summary](#8-summary)
 
----
+--- 3. Image Registry: Amazon ECR
 
 # 1. Application Setup
 
@@ -107,6 +109,8 @@ The application returned:
 Service Ready
 ```
 This confirmed that the application was running successfully and that its health endpoint was accessible before moving on to containerisation.
+
+[↑ Back to top](#top)
 
 # 2. Containerisation
 
