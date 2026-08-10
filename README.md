@@ -557,9 +557,116 @@ terraform apply
 ## Terraform Destroy
 
 The infrastructure can also be removed using:
-
+```bash
 terraform destroy
-
+```
 A dedicated GitHub Actions workflow was later created to perform Terraform destruction manually with an additional confirmation input.
 
 This provides a controlled way of removing the infrastructure while still allowing Terraform to use the existing remote state.
+
+# 6. CI/CD Automation
+
+Once the infrastructure could be successfully recreated using Terraform, the deployment process was automated using GitHub Actions.
+
+The CI/CD implementation was separated into individual workflows so that application builds, infrastructure deployment and post-deployment verification could be managed independently.
+
+The final workflow structure is:
+```text
+.github/
+└── workflows/
+    ├── docker-build-push.yml
+    ├── terraform-deploy.yml
+    ├── terraform-destroy.yml
+    └── terraform-post-deploy-check.yml
+```
+
+## Build and Push
+
+The Docker Build and Push workflow is responsible for building the Memos Docker image and pushing it to Amazon ECR.
+
+The workflow is triggered when changes are pushed to the application or the workflow itself, and can also be started manually using workflow_dispatch.
+
+The main stages are:
+
+1. Checkout the repository
+2. Configure AWS credentials
+3. Authenticate with Amazon ECR
+4. Generate Docker image metadata
+5. Build the Docker image
+6. Push the image to ECR
+
+The image is tagged using the Git commit SHA rather than using latest.
+
+## Successful Build & Push
+
+The workflow successfully completed the Docker build and push process:
+![TF Pipeline](images/terraform-build-push-pipeline.png)
+
+erraform Deploy
+
+The Terraform Deploy workflow is responsible for provisioning and updating the AWS infrastructure.
+
+The workflow is triggered when changes are pushed to the Terraform infrastructure or workflow files, and also supports manual execution using workflow_dispatch.
+
+The workflow performs the following steps:
+
+1. Checkout the repository
+2. Configure AWS credentials using GitHub Actions OIDC
+3. Set up Terraform
+4. Run terraform fmt -check -recursive
+5. Run terraform init
+6. Run terraform validate
+7. Run terraform plan
+8. Run terraform apply
+
+Terraform is therefore responsible for recreating and updating the AWS infrastructure rather than requiring the AWS Console for deployment.
+
+The workflow uses OIDC to authenticate GitHub Actions with AWS, avoiding the need to store long-lived AWS access keys in GitHub.
+
+## Successful Terraform Deployment
+
+The Terraform deployment completed successfully:
+![TF Pipeline](images/terraform-build-push-pipeline.png)
+
+## Post-Deployment Check
+
+A separate Post Deploy Check workflow was created to verify that the application was actually available after Terraform had completed.
+
+Rather than assuming that a successful Terraform deployment means the application is healthy, the workflow performs an HTTP health check against the deployed application.
+
+The workflow uses GitHub Actions' workflow_run trigger to run after the Terraform Deploy workflow completes. It only performs the health check when the Terraform deployment itself has completed successfully.
+
+The health check calls:
+```bash
+http://tm.aftabn10.co.uk/healthz
+```
+The workflow retries the request up to five times with a ten-second delay between attempts.
+
+A successful response from the deployed application confirms that the infrastructure deployment has resulted in a reachable application.
+
+If the health check receives an unsuccessful HTTP response, the health-check action fails and the post-deployment workflow is marked as unsuccessful.
+
+## Successful Post-Deployment Check
+
+The final post-deployment check completed successfully:
+![TF Pipeline](images/terraform-post-deploy-check-success.png)
+
+# Terraform Destory
+
+A separate Terraform Destroy workflow was also created for tearing down the AWS infrastructure when the environment is no longer required.
+
+This was particularly useful during development because the project followed the intended approach:
+```text
+ClickOps
+   ↓
+Destroy
+   ↓
+Terraform / IaC
+   ↓
+Automated deployment
+```
+
+The destroy workflow successfully removed the Terraform-managed infrastructure:
+![TF Pipeline](images/terraform-destroy-success.png)
+
+The destroy workflow is not part of the application deployment path, but provides a controlled way of removing the infrastructure created by Terraform.
