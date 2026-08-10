@@ -25,23 +25,23 @@ The final deployment uses:
 - GitHub Actions OIDC for AWS authentication
 - Automated post-deployment health checks
 
-### Final Application
-
-The final application is available at:
-
-https://tm.aftabn10.co.uk
-
-![image](images/memos-signin.png)
-
-![image](images/memos-app.png)
-
-# Architecture
+### Architecture
 
 > **Architecture diagram will be added here.**
 
 <!-- INSERT FINAL ARCHITECTURE DIAGRAM HERE -->
 
 The diagram shows the final AWS architecture and the flow of traffic from the user through Route 53, the Application Load Balancer and into the ECS/Fargate service.
+
+### Final Application
+
+The final Memos application is running on AWS ECS/Fargate and is accessible through the custom domain:
+
+https://tm.aftabn10.co.uk
+
+![image](images/memos-signin.png)
+
+![image](images/memos-app.png)
 
 # 1. Application Setup
 
