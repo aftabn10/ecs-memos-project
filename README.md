@@ -58,7 +58,7 @@ https://tm.aftabn10.co.uk
 - [7. HTTPS and Domain Validation](#7-https-and-domain-validation)
 - [8. Summary](#8-summary)
 
---- 3. Image Registry: Amazon ECR
+---
 
 # 1. Application Setup
 
