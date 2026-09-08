@@ -2,14 +2,48 @@ provider "aws" {
   region = "eu-west-2"
 }
 
-# The following is the only thing that should be here
+# module "vpc" {
+#   source                = "../modules/vpc"
+#   vpc_cidr_block        = "10.0.0.0/16"
+#   public_subnet_cidr_a  = "10.0.1.0/24"
+#   public_subnet_cidr_b  = "10.0.2.0/24"
+#   private_subnet_cidr_a = "10.0.3.0/24"
+#   private_subnet_cidr_b = "10.0.4.0/24"
+#   route_table_cidr      = "0.0.0.0/0"
+#   route_table_nat_cidr  = "0.0.0.0/0"
+#   eip_nat               = "vpc"
+#   vpc_nat_gateway       = "enabled"
+# }
+
 module "vpc" {
   source                = "../modules/vpc"
+
+  vpc_id                = aws_vpc.vpc_memos.id
+
   vpc_cidr_block        = "10.0.0.0/16"
-  public_subnet_cidr_a  = "10.0.1.0/24"
-  public_subnet_cidr_b  = "10.0.2.0/24"
-  private_subnet_cidr_a = "10.0.3.0/24"
-  private_subnet_cidr_b = "10.0.4.0/24"
+
+  public_subnets = {
+    public_subnet_memos_a = {
+      availability_zone = "eu-west-2a"
+      cidr_block        = "10.0.1.0/24"
+    }
+    public_subnet_memos_b = {
+      availability_zone = "eu-west-2b"
+      cidr_block        = "10.0.2.0/24"
+    }
+  }
+
+  private_subnets = {
+    private_subnet_memos_a = {
+      availability_zone = "eu-west-2a"
+      cidr_block        = "10.0.3.0/24"
+    }
+    private_subnet_memos_b = {
+      availability_zone = "eu-west-2b"
+      cidr_block        = "10.0.4.0/24"
+    }
+  }
+
   route_table_cidr      = "0.0.0.0/0"
   route_table_nat_cidr  = "0.0.0.0/0"
   eip_nat               = "vpc"

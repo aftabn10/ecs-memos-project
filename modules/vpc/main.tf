@@ -8,49 +8,77 @@ resource "aws_vpc" "vpc_memos" {
   }
 }
 
-# 1st Public Subnet
-resource "aws_subnet" "public_subnet_memos_a" {
-  vpc_id            = aws_vpc.vpc_memos.id
-  cidr_block        = var.public_subnet_cidr_a
-  availability_zone = "eu-west-2a" 
+# created dynamically with for_each and map(object)
+
+# Public Subnet
+resource "aws_subnet" "public_subnet" {
+  for_each = var.public_subnets
+
+  vpc_id            = var.vpc_id
+  availability_zone = each.value.availability_zone
+  cidr_block        = each.value.cidr_block
 
   tags = {
-    Name = "public_subnet_memos_a"
+    Name = each.key
   }
 }
 
-# 2nd Public Subnet
-resource "aws_subnet" "public_subnet_memos_b" {
-  vpc_id     = aws_vpc.vpc_memos.id
-  cidr_block = var.public_subnet_cidr_b
-  availability_zone = "eu-west-2b"
+# Private Subnet
+resource "aws_subnet" "private_subnet" {
+  for_each = var.private_subnets
+
+  vpc_id            = var.vpc_id
+  availability_zone = each.value.availability_zone
+  cidr_block        = each.value.cidr_block
 
   tags = {
-    Name = "public_subnet_memos_b"
+    Name = each.key
   }
 }
 
-# 1st Private Subnet
-resource "aws_subnet" "private_subnet_memos_a" {
-  vpc_id     = aws_vpc.vpc_memos.id
-  cidr_block = var.private_subnet_cidr_a
-  availability_zone = "eu-west-2a"
+# # 1st Public Subnet
+# resource "aws_subnet" "public_subnet_memos_a" {
+#   vpc_id            = aws_vpc.vpc_memos.id
+#   cidr_block        = var.public_subnet_cidr_a
+#   availability_zone = "eu-west-2a" 
 
-  tags = {
-    Name = "private_subnet_memos_a"
-  }
-}
+#   tags = {
+#     Name = "public_subnet_memos_a"
+#   }
+# }
 
-# 2nd Private Subnet
-resource "aws_subnet" "private_subnet_memos_b" {
-  vpc_id     = aws_vpc.vpc_memos.id
-  cidr_block = var.private_subnet_cidr_b
-  availability_zone = "eu-west-2b"
+# # 2nd Public Subnet
+# resource "aws_subnet" "public_subnet_memos_b" {
+#   vpc_id     = aws_vpc.vpc_memos.id
+#   cidr_block = var.public_subnet_cidr_b
+#   availability_zone = "eu-west-2b"
 
-  tags = {
-    Name = "private_subnet_memos_b"
-  }
-}
+#   tags = {
+#     Name = "public_subnet_memos_b"
+#   }
+# }
+
+# # 1st Private Subnet
+# resource "aws_subnet" "private_subnet_memos_a" {
+#   vpc_id     = aws_vpc.vpc_memos.id
+#   cidr_block = var.private_subnet_cidr_a
+#   availability_zone = "eu-west-2a"
+
+#   tags = {
+#     Name = "private_subnet_memos_a"
+#   }
+# }
+
+# # 2nd Private Subnet
+# resource "aws_subnet" "private_subnet_memos_b" {
+#   vpc_id     = aws_vpc.vpc_memos.id
+#   cidr_block = var.private_subnet_cidr_b
+#   availability_zone = "eu-west-2b"
+
+#   tags = {
+#     Name = "private_subnet_memos_b"
+#   }
+# }
 
 # Internet Gateway
 resource "aws_internet_gateway" "igw_memos" {
