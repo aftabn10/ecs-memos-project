@@ -7,33 +7,33 @@ resource "aws_ecs_task_definition" "service" {
   execution_role_arn       = var.execution_role_arn
   task_role_arn            = var.task_role_arn
   volume {
-    name                   = var.volume_name
+    name = var.volume_name
   }
-  container_definitions    = jsonencode([
+  container_definitions = jsonencode([
     {
-      name                 = "memos-container"
-      image                = "${var.ecr_image_url}:v3"
-      essential            = true
-      portMappings         = [
+      name      = "memos-container"
+      image     = "${var.ecr_image_url}:v3"
+      essential = true
+      portMappings = [
         {
-          containerPort    = 8081
-          hostPort         = 8081
+          containerPort = 8081
+          hostPort      = 8081
         }
       ]
       mountPoints = [{
-          sourceVolume     = var.volume_name
-          containerPath    = var.container_mount_path
-          readOnly         = false
-        }]
+        sourceVolume  = var.volume_name
+        containerPath = var.container_mount_path
+        readOnly      = false
+      }]
       logConfiguration = {
-      logDriver = "awslogs"
+        logDriver = "awslogs"
 
-      options = {
-        awslogs-group         = "/ecs/ecr-memos-app"
-        awslogs-region        = "eu-west-2"
-        awslogs-stream-prefix = "ecs"
+        options = {
+          awslogs-group         = "/ecs/ecr-memos-app"
+          awslogs-region        = "eu-west-2"
+          awslogs-stream-prefix = "ecs"
+        }
       }
     }
-  }
-])
+  ])
 }

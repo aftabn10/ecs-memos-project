@@ -1,19 +1,19 @@
 variable "vpc_id" {
-    type = string
+  type = string
 }
 
 variable "alb_name" {
   description = "Name of Load Balancer"
-  type = string
+  type        = string
 }
 
 variable "alb_type" {
-    description = "Type of ALB used"
-    type = string
+  description = "Type of ALB used"
+  type        = string
 }
 
 variable "alb_internal" {
-    description = "Internal ALB used"
+  description = "Internal ALB used"
 }
 
 variable "alb_security_group_id" {
@@ -25,40 +25,40 @@ variable "public_subnet_ids" {
 }
 
 variable "ip_tg_name" {
-    type = string
+  type = string
 }
 
 variable "ip_tg_port" {
-    type = string
+  type = string
 }
-  
+
 variable "ip_tag_protocol" {
-    type = string
+  type = string
 }
 
 variable "ip_target_type" {
-    type = string
+  type = string
 }
 
 variable "tg_health_check_path" {
-    type = string
+  type = string
 }
 
 variable "tg_interval" {
-    type = number
+  type = number
 }
 
 variable "tg_timeout" {
-    type = number
+  type = number
 }
 
 variable "tg_healthy_threshold" {
-    type = number
+  type = number
 }
 
 variable "tg_unhealthy_threshold" {
-    type = number
-} 
+  type = number
+}
 
 variable "listener_port" {
   type    = number

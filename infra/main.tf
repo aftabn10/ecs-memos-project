@@ -3,9 +3,9 @@ provider "aws" {
 }
 
 module "vpc" {
-  source                = "../modules/vpc"
+  source = "../modules/vpc"
 
-  vpc_cidr_block        = "10.0.0.0/16"
+  vpc_cidr_block = "10.0.0.0/16"
 
   public_subnets = {
     public_subnet_memos_a = {
@@ -29,10 +29,10 @@ module "vpc" {
     }
   }
 
-  route_table_cidr      = "0.0.0.0/0"
-  route_table_nat_cidr  = "0.0.0.0/0"
-  eip_nat               = "vpc"
-  vpc_nat_gateway       = "enabled"
+  route_table_cidr     = "0.0.0.0/0"
+  route_table_nat_cidr = "0.0.0.0/0"
+  eip_nat              = "vpc"
+  vpc_nat_gateway      = "enabled"
 }
 
 module "security_groups" {

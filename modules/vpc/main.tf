@@ -47,7 +47,7 @@ resource "aws_internet_gateway" "igw_memos" {
 
 # eip
 resource "aws_eip" "eip_nat" {
-  domain         = var.eip_nat 
+  domain = var.eip_nat
 }
 
 # NAT Gateway
@@ -89,24 +89,24 @@ resource "aws_route_table_association" "subnet_b_assoc" {
 
 # Creating Route Table for NAT Gateway
 resource "aws_route_table" "rt_NAT" {
-    vpc_id = aws_vpc.vpc_memos.id
-route {
-        cidr_block = var.route_table_nat_cidr
-        nat_gateway_id = aws_nat_gateway.vpc_nat_gateway.id
-    }
-tags = {
-        Name = "Route Table for Private subnet"
-    }
+  vpc_id = aws_vpc.vpc_memos.id
+  route {
+    cidr_block     = var.route_table_nat_cidr
+    nat_gateway_id = aws_nat_gateway.vpc_nat_gateway.id
+  }
+  tags = {
+    Name = "Route Table for Private subnet"
+  }
 }
 
 # Route Table Association - Private Subnet A
 resource "aws_route_table_association" "private_subnet_a_assoc" {
-    subnet_id      = aws_subnet.private_subnet_memos_a.id
-    route_table_id = aws_route_table.rt_NAT.id
+  subnet_id      = aws_subnet.private_subnet_memos_a.id
+  route_table_id = aws_route_table.rt_NAT.id
 }
 
 # Route Table Association - Private Subnet B
 resource "aws_route_table_association" "private_subnet_b_assoc" {
-    subnet_id      = aws_subnet.private_subnet_memos_b.id
-    route_table_id = aws_route_table.rt_NAT.id
+  subnet_id      = aws_subnet.private_subnet_memos_b.id
+  route_table_id = aws_route_table.rt_NAT.id
 }
