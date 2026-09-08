@@ -9,14 +9,25 @@ resource "aws_security_group" "memos_alb_sg" {
   }
 }
 
-# Allow HTTP (port 80) for ALB
+# Updated Inbound Rules for HTTP and HTTPs
 resource "aws_vpc_security_group_ingress_rule" "memos_alb_inbound" {
+  for_each = var.memos_alb_inbound
+
   security_group_id = aws_security_group.memos_alb_sg.id
-  cidr_ipv4         = var.inbound_cidr_ipv4
-  ip_protocol       = var.inbound_ip_protocol
-  from_port         = var.alb_from_port
-  to_port           = var.alb_to_port
+  cidr_ipv4         = each.value.cidr_ipv4
+  ip_protocol       = each.value.ip_protocol
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
 }
+
+# Allow HTTP (port 80) for ALB
+# resource "aws_vpc_security_group_ingress_rule" "memos_alb_inbound" {
+#   security_group_id = aws_security_group.memos_alb_sg.id
+#   cidr_ipv4         = var.inbound_cidr_ipv4
+#   ip_protocol       = var.inbound_ip_protocol
+#   from_port         = var.alb_from_port
+#   to_port           = var.alb_to_port
+# }
 
 # Allow all outbound traffic
 resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
@@ -26,13 +37,13 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
 }
 
 # Allow HTTPS (port 443) for ALB
-resource "aws_vpc_security_group_ingress_rule" "memos_alb_https_inbound" {
-  security_group_id = aws_security_group.memos_alb_sg.id
-  cidr_ipv4         = var.https_inbound_cidr_ipv4
-  ip_protocol       = var.https_inbound_ip_protocol
-  from_port         = var.https_from_port
-  to_port           = var.https_to_port
-}
+# resource "aws_vpc_security_group_ingress_rule" "memos_alb_https_inbound" {
+#   security_group_id = aws_security_group.memos_alb_sg.id
+#   cidr_ipv4         = var.https_inbound_cidr_ipv4
+#   ip_protocol       = var.https_inbound_ip_protocol
+#   from_port         = var.https_from_port
+#   to_port           = var.https_to_port
+# }
 
 #####################################################################
 

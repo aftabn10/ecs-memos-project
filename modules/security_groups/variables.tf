@@ -12,24 +12,36 @@ variable "memos_alb_sg_description" {
   type        = string
 }
 
-variable "inbound_cidr_ipv4" {
-  description = "CIDR for ALB SG Inbound Rules"
-  type        = string
+# Updated Inbound Rules
+variable "memos_alb_inbound" {
+  type = map(object({
+    cidr_ipv4   = string
+    ip_protocol = string
+    from_port   = number
+    to_port     = number
+  }))
 }
 
-variable "inbound_ip_protocol" {
-  description = "IP Type for ALB SG Inbound Rules"
-}
+#here
+# variable "inbound_cidr_ipv4" {
+#   description = "CIDR for ALB SG Inbound Rules"
+#   type        = string
+# }
 
-variable "alb_from_port" {
-  type        = number
-  description = "From Port for ALB SG Inbound Rules"
-}
+# variable "inbound_ip_protocol" {
+#   description = "IP Type for ALB SG Inbound Rules"
+# }
 
-variable "alb_to_port" {
-  type        = number
-  description = "To Port for ALB SG Inbound Rules"
-}
+# variable "alb_from_port" {
+#   type        = number
+#   description = "From Port for ALB SG Inbound Rules"
+# }
+
+# variable "alb_to_port" {
+#   type        = number
+#   description = "To Port for ALB SG Inbound Rules"
+# }
+# to here
 
 variable "outbound_cidr_ipv4" {
   description = "CIDR for ALB SG Outbound Rules"
@@ -41,24 +53,25 @@ variable "outbound_ip_protocol" {
 }
 
 # Variables for HTTPS Inbound Rules
-variable "https_inbound_cidr_ipv4" {
-  description = "CIDR for ALB SG Inbound Rules"
-  type        = string
-}
+# variable "https_inbound_cidr_ipv4" {
+#   description = "CIDR for ALB SG Inbound Rules"
+#   type        = string
+# }
 
-variable "https_inbound_ip_protocol" {
-  description = "IP Type for ALB SG Inbound Rules"
-}
+# variable "https_inbound_ip_protocol" {
+#   description = "IP Type for ALB SG Inbound Rules"
+# }
 
-variable "https_from_port" {
-  type        = number
-  description = "From Port for ALB SG Inbound Rules"
-}
+# variable "https_from_port" {
+#   type        = number
+#   description = "From Port for ALB SG Inbound Rules"
+# }
 
-variable "https_to_port" {
-  type        = number
-  description = "To Port for ALB SG Inbound Rules"
-}
+# variable "https_to_port" {
+#   type        = number
+#   description = "To Port for ALB SG Inbound Rules"
+# }
+# stop here
 
 variable "memos_ecs_sg_name" {
   description = "Security Group Name for ECS ALB"
