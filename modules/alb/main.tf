@@ -49,6 +49,7 @@ resource "aws_lb_listener" "https_listener" {
   protocol          = var.https_listener_protocol
 
   certificate_arn = var.certificate_arn
+  ssl_policy      = "ELBSecurityPolicy-TLS-1-2-2017-01" 
   
   default_action {
     type             = "forward"

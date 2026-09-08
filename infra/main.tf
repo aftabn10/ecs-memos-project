@@ -87,6 +87,8 @@ module "alb" {
   https_listener_port     = 443
   https_listener_protocol = "HTTPS"
   certificate_arn         = module.acm.certificate_arn
+
+  depends_on = [module.acm]
 }
 
 module "iam" {

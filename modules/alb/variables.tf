@@ -77,7 +77,7 @@ variable "https_listener_port" {
 
 variable "https_listener_protocol" {
   type    = string
-  default = "HTTP"
+  default = "HTTPS"
 }
 
 variable "certificate_arn" {
