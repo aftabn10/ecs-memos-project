@@ -53,7 +53,7 @@ resource "aws_eip" "eip_nat" {
 # NAT Gateway
 resource "aws_nat_gateway" "vpc_nat_gateway" {
   allocation_id = aws_eip.eip_nat.id
-  subnet_id     = aws_subnet.public_subnet_memos_a.id
+  subnet_id     = aws_subnet.public_subnet["public_subnet_memos_a"].id
 
   tags = {
     Name = "vpc_nat_gateway"
@@ -77,13 +77,13 @@ resource "aws_route_table" "route_table_memos" {
 
 # Route Table Association - Public Subnet A
 resource "aws_route_table_association" "subnet_a_assoc" {
-  subnet_id      = aws_subnet.public_subnet_memos_a.id
+  subnet_id      = aws_subnet.public_subnet["public_subnet_memos_a"].id
   route_table_id = aws_route_table.route_table_memos.id
 }
 
 # Route Table Association - Public Subnet B
 resource "aws_route_table_association" "subnet_b_assoc" {
-  subnet_id      = aws_subnet.public_subnet_memos_b.id
+  subnet_id      = aws_subnet.public_subnet["public_subnet_memos_b"].id
   route_table_id = aws_route_table.route_table_memos.id
 }
 
@@ -101,12 +101,12 @@ resource "aws_route_table" "rt_NAT" {
 
 # Route Table Association - Private Subnet A
 resource "aws_route_table_association" "private_subnet_a_assoc" {
-  subnet_id      = aws_subnet.private_subnet_memos_a.id
+  subnet_id      = aws_subnet.private_subnet["private_subnet_memos_a"].id
   route_table_id = aws_route_table.rt_NAT.id
 }
 
 # Route Table Association - Private Subnet B
 resource "aws_route_table_association" "private_subnet_b_assoc" {
-  subnet_id      = aws_subnet.private_subnet_memos_b.id
+  subnet_id      = aws_subnet.private_subnet["private_subnet_memos_b"].id
   route_table_id = aws_route_table.rt_NAT.id
 }
