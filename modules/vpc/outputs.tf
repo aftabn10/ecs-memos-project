@@ -4,14 +4,12 @@ output "vpc_id" {
 
 output "public_subnet_ids" {
   value = [
-    aws_subnet.public_subnet_memos_a.id,
-    aws_subnet.public_subnet_memos_b.id
+    for key, subnet in aws_subnet.public_subnet : subnet.id
   ]
 }
 
 output "private_subnet_ids" {
   value = [
-    aws_subnet.private_subnet_memos_a.id,
-    aws_subnet.private_subnet_memos_b.id
+    for key, subnet in aws_subnet.private_subnet : subnet.id
     ]
 }
