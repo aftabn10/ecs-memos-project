@@ -60,11 +60,6 @@ module "security_groups" {
     }
   }
 
-  # inbound_cidr_ipv4        = "0.0.0.0/0"
-  # inbound_ip_protocol      = "tcp"
-  # alb_from_port            = 80
-  # alb_to_port              = 80
-
   outbound_cidr_ipv4   = "0.0.0.0/0"
   outbound_ip_protocol = "-1"
 
@@ -76,12 +71,6 @@ module "security_groups" {
   ecs_to_port              = 8081
   ecs_outbound_cidr_ipv4   = "0.0.0.0/0"
   ecs_outbound_ip_protocol = "-1"
-
-  # HTTPS
-  # https_inbound_cidr_ipv4   = "0.0.0.0/0"
-  # https_inbound_ip_protocol = "tcp"
-  # https_from_port           = 443
-  # https_to_port             = 443
 }
 
 module "alb" {
