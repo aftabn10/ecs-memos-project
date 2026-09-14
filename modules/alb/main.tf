@@ -6,7 +6,8 @@ resource "aws_lb" "memos_alb" {
   security_groups = [var.alb_security_group_id]
   subnets         = var.public_subnet_ids
 
-  enable_deletion_protection = false
+  # Fix CKV_AWS_150: Ensure that Load Balancer has deletion protection enabled
+  enable_deletion_protection = true
 
   # Fix CKV_AWS_131: Ensure the ALB drops invalid HTTP header fields
   drop_invalid_header_fields = true
