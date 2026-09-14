@@ -8,6 +8,9 @@ resource "aws_lb" "memos_alb" {
 
   enable_deletion_protection = false
 
+  # Fix CKV_AWS_131: Ensure the ALB drops invalid HTTP header fields
+  drop_invalid_header_fields = true
+
   tags = {
     Environment = "memos-alb"
   }
