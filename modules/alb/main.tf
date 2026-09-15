@@ -7,7 +7,8 @@ resource "aws_lb" "memos_alb" {
   subnets         = var.public_subnet_ids
 
   # Fix CKV_AWS_150: Ensure that Load Balancer has deletion protection enabled
-  enable_deletion_protection = true
+  # Commented out for tf destroy to work
+  enable_deletion_protection = false
 
   # Fix CKV_AWS_131: Ensure the ALB drops invalid HTTP header fields
   drop_invalid_header_fields = true
