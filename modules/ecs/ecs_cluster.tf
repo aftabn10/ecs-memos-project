@@ -1,6 +1,10 @@
 resource "aws_ecs_cluster" "fargate_cluster" {
   name = var.ecs_fargate_cluster_name
-  # No setting block means Container Insights is OFF by default
+  # Fix  CKV_AWS_65: Ensure container insights are enabled on ECS cluster
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
 }
 
 # 2. Force the cluster to use Fargate exclusively
