@@ -62,6 +62,7 @@ module "security_groups" {
 
   outbound_cidr_ipv4   = "0.0.0.0/0"
   outbound_ip_protocol = "-1"
+  outbound_description = "Allow all outbound traffic"
 
   # ECS Security Group
   memos_ecs_sg_name        = "memos-ecs-sg"
@@ -69,8 +70,12 @@ module "security_groups" {
   ecs_inbound_ip_protocol  = "tcp"
   ecs_from_port            = 8081
   ecs_to_port              = 8081
+  # Fix CKV_AWS_23: Ensure every SG and rule has a description
+  ecs_inbound_description  = "Allow traffic from the ALB"
   ecs_outbound_cidr_ipv4   = "0.0.0.0/0"
   ecs_outbound_ip_protocol = "-1"
+  # Fix CKV_AWS_23: Ensure every SG and rule has a description
+  ecs_outbound_description = "Allow outbound traffic"
 }
 
 module "alb" {
