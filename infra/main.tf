@@ -136,7 +136,7 @@ module "ecs" {
   task_role_arn            = null
   ecs_fargate_cluster_name = "memos-fargate-cluster"
   volume_name              = "memos-data"
-  container_mount_path     = "/var/opt/memos"
+  container_mount_path     = "~/.memos:/var/opt/memos"
   # services
   service_name                      = "ecr-memo-service"
   service_launch_type               = "FARGATE"
