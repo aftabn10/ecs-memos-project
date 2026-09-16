@@ -15,7 +15,7 @@ resource "aws_ecs_task_definition" "service" {
       image     = "${var.ecr_image_url}:v3"
       essential = true
       # Fix AWS_336: restrict root filesystem to read-only 
-      readonlyRootFilesystem = true
+      # commented out for now - readonlyRootFilesystem = true
       portMappings = [
         {
           containerPort = 8081
