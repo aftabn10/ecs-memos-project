@@ -50,6 +50,8 @@ module "security_groups" {
       ip_protocol = "tcp"
       from_port   = 80
       to_port     = 80
+      # Fix CKV_AWS_23: Ensure every SG and rule has a description
+      description = "Allow HTTP traffic"
     }
 
     https = {
@@ -57,6 +59,8 @@ module "security_groups" {
       ip_protocol = "tcp"
       from_port   = 443
       to_port     = 443
+      # Fix CKV_AWS_23: Ensure every SG and rule has a description
+      description = "Allow secure HTTPs traffic"
     }
   }
 

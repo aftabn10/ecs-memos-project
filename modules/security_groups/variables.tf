@@ -19,6 +19,8 @@ variable "memos_alb_inbound" {
     ip_protocol = string
     from_port   = number
     to_port     = number
+    # Fix CKV_AWS_23: Ensure every SG and rule has a description
+    description = string
   }))
 }
 

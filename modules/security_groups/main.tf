@@ -18,6 +18,8 @@ resource "aws_vpc_security_group_ingress_rule" "memos_alb_inbound" {
   ip_protocol       = each.value.ip_protocol
   from_port         = each.value.from_port
   to_port           = each.value.to_port
+  # Fix CKV_AWS_23: Ensure every SG and rule has a description
+  description       = each.value.description
 }
 
 # Allow HTTP (port 80) for ALB
