@@ -69,6 +69,10 @@ variable "listener_protocol" {
   type    = string
   default = "HTTP"
 }
+# Fix for AWS_20
+variable "status_code" {
+  type = string
+}
 
 variable "https_listener_port" {
   type    = number

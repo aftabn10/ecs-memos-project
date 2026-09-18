@@ -56,8 +56,14 @@ resource "aws_lb_listener" "https_listener" {
   certificate_arn = var.certificate_arn
   ssl_policy      = "ELBSecurityPolicy-TLS-1-2-2017-01"
 
+  # Fix for AWS_20
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.ip_target_group.arn
+    type = "redirect"
+
+    redirect {
+      port        = var.https_listener_port
+      protocol    = var.https_listener_protocol
+      status_code = var.status_code
+    }
   }
 }
