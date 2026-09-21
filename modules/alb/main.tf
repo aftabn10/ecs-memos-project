@@ -40,8 +40,13 @@ resource "aws_lb_listener" "http_listener" {
   protocol          = var.listener_protocol
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.ip_target_group.arn
+    type             = "redirect"
+
+    redirect {
+      port           = var.https_listener_port
+      protocol       = var.https_listener_protocol
+      status_code    = var.status_code 
+    }
   }
 }
 
@@ -58,12 +63,7 @@ resource "aws_lb_listener" "https_listener" {
 
   # Fix for AWS_20
   default_action {
-    type = "redirect"
-
-    redirect {
-      port        = var.https_listener_port
-      protocol    = var.https_listener_protocol
-      status_code = var.status_code
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ip_target_group.arn 
   }
 }
