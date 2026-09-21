@@ -83,25 +83,26 @@ module "security_groups" {
 }
 
 module "alb" {
-  source                  = "../modules/alb"
-  vpc_id                  = module.vpc.vpc_id
-  alb_name                = "memos-alb"
-  alb_internal            = "false"
-  alb_type                = "application"
-  alb_security_group_id   = module.security_groups.alb_security_group_id
-  public_subnet_ids       = module.vpc.public_subnet_ids
-  ip_tg_name              = "memos-tg"
-  ip_tg_port              = 8081
-  ip_tag_protocol         = "HTTP"
-  ip_target_type          = "ip"
-  tg_health_check_path    = "/healthz"
-  tg_interval             = 30
-  tg_timeout              = 10
-  tg_healthy_threshold    = 2
-  tg_unhealthy_threshold  = 5
-  listener_port           = 80
-  listener_protocol       = "HTTP"
-  status_code             = "HTTP_301"
+  source                 = "../modules/alb"
+  vpc_id                 = module.vpc.vpc_id
+  alb_name               = "memos-alb"
+  alb_internal           = "false"
+  alb_type               = "application"
+  alb_security_group_id  = module.security_groups.alb_security_group_id
+  public_subnet_ids      = module.vpc.public_subnet_ids
+  ip_tg_name             = "memos-tg"
+  ip_tg_port             = 8081
+  ip_tag_protocol        = "HTTP"
+  ip_target_type         = "ip"
+  tg_health_check_path   = "/healthz"
+  tg_interval            = 30
+  tg_timeout             = 10
+  tg_healthy_threshold   = 2
+  tg_unhealthy_threshold = 5
+  listener_port          = 80
+  listener_protocol      = "HTTP"
+  status_code            = "HTTP_301"
+  #Fix: CKV_AWS_2 - pass HTTPS into the root module
   https_listener_port     = 443
   https_listener_protocol = "HTTPS"
   certificate_arn         = module.acm.certificate_arn
