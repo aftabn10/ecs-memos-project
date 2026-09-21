@@ -101,7 +101,7 @@ module "alb" {
   tg_unhealthy_threshold  = 5
   listener_port           = 80
   listener_protocol       = "HTTP"
-  status_code             = "HTTP_301" 
+  status_code             = "HTTP_301"
   https_listener_port     = 443
   https_listener_protocol = "HTTPS"
   certificate_arn         = module.acm.certificate_arn
