@@ -127,6 +127,7 @@ module "acm" {
   source            = "../modules/acm"
   domain_name       = "tm.aftabn10.co.uk"
   validation_method = "DNS"
+  route53_zone_name = "aftabn10.co.uk"
 }
 
 module "ecs" {

@@ -8,3 +8,8 @@ variable "validation_method" {
   description = "The validation method for the ACM certificate (DNS or EMAIL)"
   default     = "DNS"
 }
+
+variable "route53_zone_name" {
+  type        = string
+  description = "The Route 53 hosted zone name"
+}
