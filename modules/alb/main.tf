@@ -40,12 +40,12 @@ resource "aws_lb_listener" "http_listener" {
   protocol          = var.listener_protocol
 
   default_action {
-    type             = "redirect"
+    type = "redirect"
 
     redirect {
-      port           = var.https_listener_port
-      protocol       = var.https_listener_protocol
-      status_code    = var.status_code 
+      port        = var.https_listener_port
+      protocol    = var.https_listener_protocol
+      status_code = var.status_code
     }
   }
 }
@@ -59,11 +59,12 @@ resource "aws_lb_listener" "https_listener" {
   protocol          = var.https_listener_protocol
 
   certificate_arn = var.certificate_arn
-  ssl_policy      = "ELBSecurityPolicy-TLS-1-2-2017-01"
+  # Fix: CKV_AWS_103 - Correct TLS for Load Balancer
+  ssl_policy = "ELBSecurityPolicy-TLS-1-2-2017-01"
 
-  # Fix for AWS_20
+  # Fix for AWS_20 - HTTP redirects to HTTP
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.ip_target_group.arn 
+    target_group_arn = aws_lb_target_group.ip_target_group.arn
   }
 }
