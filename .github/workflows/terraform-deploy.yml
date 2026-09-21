@@ -46,6 +46,15 @@ jobs:
     - name: Terraform Validate
       id: validate
       run: terraform validate
+
+    # Improvements: Run Checkov with your soft-cease exceptions
+    - name: Run Checkov Static Analysis
+      id: checkov
+      run: |
+        pip install checkov
+        checkov -d . \
+          --skip-check CKV_AWS_260,CKV2_AWS_28,CKV2_AWS_11,CKV_AWS_336,CKV_AWS_150 \
+          --soft-fail
       
     - name: Terraform Plan
       id: plan

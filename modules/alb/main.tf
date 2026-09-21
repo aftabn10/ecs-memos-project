@@ -13,6 +13,7 @@ resource "aws_lb" "memos_alb" {
   # Fix CKV_AWS_131: Ensure the ALB drops invalid HTTP header fields
   drop_invalid_header_fields = true
 
+
   tags = {
     Environment = "memos-alb"
   }
