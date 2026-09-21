@@ -8,6 +8,11 @@ resource "aws_vpc" "vpc_memos" {
   }
 }
 
+# Fix: CKV2_AWS_12: Add default SG to restrict traffic
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.vpc_memos.id
+}
+
 # created dynamically with for_each and map(object)
 
 # Public Subnet
