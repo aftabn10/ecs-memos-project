@@ -125,7 +125,7 @@ module "route53" {
 
 module "acm" {
   source            = "../modules/acm"
-  domain_name       = "aftabn10.co.uk"
+  domain_name       = "tm.aftabn10.co.uk"
   validation_method = "DNS"
 }
 
