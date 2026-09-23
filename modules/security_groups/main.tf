@@ -1,5 +1,6 @@
 # Base SG for Memos ALB
 resource "aws_security_group" "memos_alb_sg" {
+  #checkov:skip=CKV2_AWS_5:Security group is attached to the Application Load Balancer
   name        = var.memos_alb_sg_name
   description = var.memos_alb_sg_description
   vpc_id      = var.vpc_id
@@ -54,6 +55,7 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
 
 # # Base SG for ECS ALB
 resource "aws_security_group" "memos_ecs_sg" {
+  #checkov:skip=CKV2_AWS_5:Security group is attached to the ECS Fargate service
   name        = var.memos_ecs_sg_name
   description = var.memos_ecs_sg_description
   vpc_id      = var.vpc_id

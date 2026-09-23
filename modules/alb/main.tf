@@ -40,6 +40,8 @@ resource "aws_lb_listener" "http_listener" {
   port              = var.listener_port
   protocol          = var.listener_protocol
 
+  # Fix CKV_AWS_378: Redirect HTTP traffic to HTTPs
+  # This also satisfies CKV_AWS_378 by preventing HTTP traffic from being forwarded to the target group.
   default_action {
     type = "redirect"
 
