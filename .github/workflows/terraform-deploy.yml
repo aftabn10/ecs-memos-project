@@ -48,12 +48,14 @@ jobs:
       run: terraform validate
 
     # Improvements: Run Checkov with your soft-cease exceptions
+    # Intentional soft-ceases:
+    # CKV_AWS_91 - ALB access logging to S3 is out of scope for this portfolio project.
     - name: Run Checkov Static Analysis
       id: checkov
       run: |
         pip install checkov
         checkov -d . \
-          --skip-check CKV_AWS_260,CKV2_AWS_28,CKV2_AWS_11,CKV_AWS_336,CKV_AWS_150 \
+          --skip-check CKV_AWS_260,CKV2_AWS_28,CKV2_AWS_11,CKV_AWS_336,CKV_AWS_150,CKV_AWS_91 \
           --soft-fail
       
     - name: Terraform Plan
