@@ -50,6 +50,8 @@ module "security_groups" {
       ip_protocol = "tcp"
       from_port   = 80
       to_port     = 80
+      # Fix CKV_AWS_23: Ensure every SG and rule has a description
+      description = "Allow HTTP traffic"
     }
 
     https = {
@@ -57,11 +59,14 @@ module "security_groups" {
       ip_protocol = "tcp"
       from_port   = 443
       to_port     = 443
+      # Fix CKV_AWS_23: Ensure every SG and rule has a description
+      description = "Allow secure HTTPs traffic"
     }
   }
 
   outbound_cidr_ipv4   = "0.0.0.0/0"
   outbound_ip_protocol = "-1"
+  outbound_description = "Allow all outbound traffic"
 
   # ECS Security Group
   memos_ecs_sg_name        = "memos-ecs-sg"
@@ -69,29 +74,35 @@ module "security_groups" {
   ecs_inbound_ip_protocol  = "tcp"
   ecs_from_port            = 8081
   ecs_to_port              = 8081
+  # Fix CKV_AWS_23: Ensure every SG and rule has a description
+  ecs_inbound_description  = "Allow traffic from the ALB"
   ecs_outbound_cidr_ipv4   = "0.0.0.0/0"
   ecs_outbound_ip_protocol = "-1"
+  # Fix CKV_AWS_23: Ensure every SG and rule has a description
+  ecs_outbound_description = "Allow outbound traffic"
 }
 
 module "alb" {
-  source                  = "../modules/alb"
-  vpc_id                  = module.vpc.vpc_id
-  alb_name                = "memos-alb"
-  alb_internal            = "false"
-  alb_type                = "application"
-  alb_security_group_id   = module.security_groups.alb_security_group_id
-  public_subnet_ids       = module.vpc.public_subnet_ids
-  ip_tg_name              = "memos-tg"
-  ip_tg_port              = 8081
-  ip_tag_protocol         = "HTTP"
-  ip_target_type          = "ip"
-  tg_health_check_path    = "/healthz"
-  tg_interval             = 30
-  tg_timeout              = 10
-  tg_healthy_threshold    = 2
-  tg_unhealthy_threshold  = 5
-  listener_port           = 80
-  listener_protocol       = "HTTP"
+  source                 = "../modules/alb"
+  vpc_id                 = module.vpc.vpc_id
+  alb_name               = "memos-alb"
+  alb_internal           = "false"
+  alb_type               = "application"
+  alb_security_group_id  = module.security_groups.alb_security_group_id
+  public_subnet_ids      = module.vpc.public_subnet_ids
+  ip_tg_name             = "memos-tg"
+  ip_tg_port             = 8081
+  ip_tag_protocol        = "HTTP"
+  ip_target_type         = "ip"
+  tg_health_check_path   = "/healthz"
+  tg_interval            = 30
+  tg_timeout             = 10
+  tg_healthy_threshold   = 2
+  tg_unhealthy_threshold = 5
+  listener_port          = 80
+  listener_protocol      = "HTTP"
+  status_code            = "HTTP_301"
+  #Fix: CKV_AWS_2 - pass HTTPS into the root module
   https_listener_port     = 443
   https_listener_protocol = "HTTPS"
   certificate_arn         = module.acm.certificate_arn
@@ -114,8 +125,9 @@ module "route53" {
 
 module "acm" {
   source            = "../modules/acm"
-  domain_name       = "aftabn10.co.uk"
+  domain_name       = "tm.aftabn10.co.uk"
   validation_method = "DNS"
+  route53_zone_name = "aftabn10.co.uk"
 }
 
 module "ecs" {

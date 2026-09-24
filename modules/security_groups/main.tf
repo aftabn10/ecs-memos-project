@@ -1,5 +1,6 @@
 # Base SG for Memos ALB
 resource "aws_security_group" "memos_alb_sg" {
+  #checkov:skip=CKV2_AWS_5:Security group is attached to the Application Load Balancer
   name        = var.memos_alb_sg_name
   description = var.memos_alb_sg_description
   vpc_id      = var.vpc_id
@@ -18,6 +19,8 @@ resource "aws_vpc_security_group_ingress_rule" "memos_alb_inbound" {
   ip_protocol       = each.value.ip_protocol
   from_port         = each.value.from_port
   to_port           = each.value.to_port
+  # Fix CKV_AWS_23: Ensure every SG and rule has a description
+  description = each.value.description
 }
 
 # Allow HTTP (port 80) for ALB
@@ -30,10 +33,13 @@ resource "aws_vpc_security_group_ingress_rule" "memos_alb_inbound" {
 # }
 
 # Allow all outbound traffic
+
 resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
   security_group_id = aws_security_group.memos_alb_sg.id
   cidr_ipv4         = var.outbound_cidr_ipv4
   ip_protocol       = var.outbound_ip_protocol
+  # Fix CKV_AWS_23: Ensure every SG and rule has a description
+  description = var.outbound_description
 }
 
 # Allow HTTPS (port 443) for ALB
@@ -49,6 +55,7 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
 
 # # Base SG for ECS ALB
 resource "aws_security_group" "memos_ecs_sg" {
+  #checkov:skip=CKV2_AWS_5:Security group is attached to the ECS Fargate service
   name        = var.memos_ecs_sg_name
   description = var.memos_ecs_sg_description
   vpc_id      = var.vpc_id
@@ -65,6 +72,8 @@ resource "aws_vpc_security_group_ingress_rule" "memos_ecs_sg_inbound" {
   from_port                    = var.ecs_from_port
   to_port                      = var.ecs_to_port
   referenced_security_group_id = aws_security_group.memos_alb_sg.id
+  # Fix CKV_AWS_23: Ensure every SG and rule has a description
+  description = var.ecs_inbound_description
 }
 
 # Allow all outbound traffic for ECS SG
@@ -72,4 +81,6 @@ resource "aws_vpc_security_group_egress_rule" "memos_ecs_sg_outbound" {
   security_group_id = aws_security_group.memos_ecs_sg.id
   cidr_ipv4         = var.ecs_outbound_cidr_ipv4
   ip_protocol       = var.ecs_outbound_ip_protocol
+  # Fix CKV_AWS_23: Ensure every SG and rule has a description
+  description = var.ecs_outbound_description
 }

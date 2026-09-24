@@ -14,6 +14,15 @@ resource "aws_ecs_task_definition" "service" {
       name      = "memos-container"
       image     = "${var.ecr_image_url}:v3"
       essential = true
+
+      environment = [
+        {
+          name  = "MEMOS_INSTANCE_URL"
+          value = "https://tm.aftabn10.co.uk"
+        }
+      ]
+      # Fix AWS_336: restrict root filesystem to read-only 
+      # commented out for now - readonlyRootFilesystem = true
       portMappings = [
         {
           containerPort = 8081

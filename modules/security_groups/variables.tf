@@ -19,6 +19,8 @@ variable "memos_alb_inbound" {
     ip_protocol = string
     from_port   = number
     to_port     = number
+    # Fix CKV_AWS_23: Ensure every SG and rule has a description
+    description = string
   }))
 }
 
@@ -105,4 +107,14 @@ variable "ecs_outbound_ip_protocol" {
   description = "IP Type for ECS SG Outbound Rules"
 }
 
-
+# Fix CKV_AWS_23: Ensure every SG and rule has a description
+variable "outbound_description" {
+  description = "Allow all outbound traffic"
+}
+variable "ecs_inbound_description" {
+  description = "Allow inbound reverse-proxy traffic from the ALB"
+}
+variable "ecs_outbound_description" {
+  description = "Allow all container outbound traffic to the internet"
+}
+# Fix CKV_AWS_23: Complete
