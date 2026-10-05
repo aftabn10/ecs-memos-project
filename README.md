@@ -57,7 +57,8 @@ https://tm.aftabn10.co.uk
 - [6. CI/CD Automation](#6-cicd-automation)
 - [7. Security](#7-security)
 - [8. HTTPS and Domain Validation](#8-https-and-domain-validation)
-- [9. Summary](#9-summary)
+- [9. Troubleshooting & Lessons Learned](#9-troubleshooting-lessons-learned)
+- [10. Summary](#10-summary)
 
 ---
 
@@ -446,15 +447,15 @@ infra/
 ├── provider.tf
 ├── variables.tf
 ├── outputs.tf
-└── modules/
-    ├── acm/
-    ├── alb/
-    ├── ecs/
-    ├── iam/
-    ├── route53/
-    ├── security_groups/
-    └── vpc/
 
+modules/
+├── acm/
+├── alb/
+├── ecs/
+├── iam/
+├── route53/
+├── security_groups/
+└── vpc/
 ```
 This separates the main infrastructure configuration from individual AWS components and makes the configuration easier to maintain.
 
