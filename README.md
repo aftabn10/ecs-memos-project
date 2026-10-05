@@ -772,6 +772,8 @@ GitHub Actions uses OpenID Connect (OIDC) to authenticate with AWS rather than s
 
 This allows the workflow to assume an IAM role with defined permissions when interacting with AWS resources.
 
+[↑ Back to top](#top)
+
 # 8. HTTPS and Domain Validation
 
 The final deployment is exposed using a custom domain with HTTPS.
@@ -922,6 +924,8 @@ The project reinforced several practical lessons:
 - A successful Terraform apply does not necessarily mean that the application itself is healthy.
 - Post-deployment health checks provide an additional validation layer.
 - CI/CD changes should be tested on a separate branch before being merged into the main deployment workflow.
+
+[↑ Back to top](#top)
 
 # 10. Summary
 
