@@ -57,7 +57,7 @@ https://tm.aftabn10.co.uk
 - [6. CI/CD Automation](#6-cicd-automation)
 - [7. Security](#7-security)
 - [8. HTTPS and Domain Validation](#8-https-and-domain-validation)
-- [9. Troubleshooting & Lessons Learned](#9-troubleshooting-lessons-learned)
+- [9. Troubleshooting & Lessons Learned](#9-troubleshooting--lessons-learned)
 - [10. Summary](#10-summary)
 
 ---
