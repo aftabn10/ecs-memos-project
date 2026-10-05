@@ -55,8 +55,9 @@ https://tm.aftabn10.co.uk
 - [4. AWS Infrastructure - ClickOps](#4-aws-infrastructure---clickops)
 - [5. AWS Infrastructure - Terraform](#5-aws-infrastructure---terraform)
 - [6. CI/CD Automation](#6-cicd-automation)
-- [7. HTTPS and Domain Validation](#7-https-and-domain-validation)
-- [8. Summary](#8-summary)
+- [7. Security](#7-security)
+- [8. HTTPS and Domain Validation](#8-https-and-domain-validation)
+- [9. Summary](#9-summary)
 
 ---
 
@@ -446,11 +447,14 @@ infra/
 ├── variables.tf
 ├── outputs.tf
 └── modules/
-    ├── vpc/
-    ├── ecs/
+    ├── acm/
     ├── alb/
-    ├── ecr/
-    └── acm/
+    ├── ecs/
+    ├── iam/
+    ├── route53/
+    ├── security_groups/
+    └── vpc/
+
 ```
 This separates the main infrastructure configuration from individual AWS components and makes the configuration easier to maintain.
 
@@ -605,7 +609,7 @@ The final workflow structure is:
 
 The Docker Build and Push workflow is responsible for building the Memos Docker image and pushing it to Amazon ECR.
 
-The workflow is triggered when changes are pushed to the application or the workflow itself, and can also be started manually using workflow_dispatch.
+The workflow is triggered when changes are pushed to the application or the workflow itself and can also be started manually using workflow_dispatch.
 
 The main stages are:
 
@@ -627,7 +631,7 @@ The workflow successfully completed the Docker build and push process:
 
 The Terraform Deploy workflow is responsible for provisioning and updating the AWS infrastructure.
 
-The workflow is triggered when changes are pushed to the Terraform infrastructure or workflow files, and also supports manual execution using workflow_dispatch.
+The workflow is triggered when changes are pushed to the Terraform infrastructure or workflow files and also supports manual execution using workflow_dispatch.
 
 The workflow performs the following steps:
 
@@ -695,7 +699,79 @@ The destroy workflow is not part of the application deployment path, but provide
 
 [↑ Back to top](#top)
 
-# 7. HTTPS and Domain Validation
+# 7. Security
+
+Security was considered throughout the project rather than being treated as a separate final step.
+The project uses several security controls across the container, AWS infrastructure and CI/CD pipeline.
+
+### Container Security
+
+The Memos application runs as a dedicated non-root user inside the Docker container.
+This reduces the privileges available to the application if the container is compromised.
+The container image was also reviewed using Grype as part of the Docker build workflow.
+
+### Infrastructure Security
+
+Terraform configuration was reviewed using Checkov to identify potential AWS security and configuration issues.
+
+The review resulted in a number of improvements to the infrastructure, including:
+
+- Enforcing HTTPS on the Application Load Balancer
+- Configuring the ALB to use a TLS 1.2 security policy
+- Restricting the default VPC security group
+- Adding descriptions to security group rules
+- Enabling ECS Container Insights
+- Reviewing security group attachment and network access
+- Configuring the ALB HTTP listener to redirect HTTP traffic to HTTPS
+
+Not every Checkov recommendation was implemented.
+
+Some findings were deliberately accepted or excluded where they were considered outside the scope of this project, conflicted with the intended architecture, or introduced additional complexity that was not justified for a lightweight portfolio deployment.
+
+This included findings relating to:
+
+- ALB WAF protection
+- VPC Flow Logs
+- ALB deletion protection
+- ALB access logging
+- Public HTTP port 80, which is required to support the HTTP to HTTPS redirect
+- Read-only container root filesystem, which was investigated but not implemented because of application volume permission requirements
+
+The intention was to demonstrate security awareness and judgement rather than simply attempting to achieve a zero Checkov finding count.
+
+### Container Vulnerability Scanning
+
+Grype was added to the Docker build workflow to scan the Memos container image for known vulnerabilities.
+
+The final workflow is:
+
+```
+Build Docker image
+       ↓
+Grype vulnerability scan
+       ↓
+Report vulnerabilities
+       ↓
+Push image to Amazon ECR
+```
+
+The scan currently reports High and Critical vulnerabilities in some of the application's upstream dependencies.
+
+The scan is configured as non-blocking, meaning that vulnerabilities are reported in the GitHub Actions workflow but do not currently prevent the image from being pushed to ECR.
+
+This was an intentional decision because the reported vulnerabilities are primarily associated with dependencies used by the upstream Memos application. 
+
+The project therefore records the findings and makes them visible without treating every scanner result as an automatic deployment blocker.
+
+This provides a balance between vulnerability visibility and keeping the deployment pipeline operational.
+
+### AWS Authentication
+
+GitHub Actions uses OpenID Connect (OIDC) to authenticate with AWS rather than storing long-lived AWS access keys in GitHub.
+
+This allows the workflow to assume an IAM role with defined permissions when interacting with AWS resources.
+
+# 8. HTTPS and Domain Validation
 
 The final deployment is exposed using a custom domain with HTTPS.
 
@@ -775,7 +851,78 @@ This confirmed that:
 
 [↑ Back to top](#top)
 
-# 8. Summary
+# 9. Troubleshooting & Lessons Learned
+
+This project involved several issues that required investigation rather than simply following the planned deployment path.
+
+### Terraform State Lock
+
+During development a GitHub Actions Terraform run was cancelled while an apply operation was in progress.
+
+This left a stale Terraform state lock in DynamoDB, which prevented subsequent Terraform operations from acquiring the state lock.
+
+The lock was investigated and safely removed using Terraform's force-unlock command after confirming that no active Terraform operation was still running.
+
+This highlighted the importance of remote state locking when Terraform is being executed through CI/CD and the need to understand the state lifecycle rather than bypassing locking.
+
+### ECS Read-Only Root Filesystem
+
+Checkov identified that the ECS container could use a read-only root filesystem.
+This was investigated and readonlyRootFilesystem was tested.
+
+However, Memos requires write access to its application data directory. The ECS volume mount also changes the permissions behaviour of the directory created and owned in the Docker image.
+
+The change therefore caused the application to fail because of volume permission issues.
+
+Rather than weakening the configuration or introducing additional complexity purely to satisfy the Checkov recommendation, the finding was parked and documented as an intentional trade-off.
+
+### ALB HTTP to HTTPS Redirect
+
+The Application Load Balancer was initially configured incorrectly while implementing the HTTP to HTTPS redirect.
+
+An incorrect listener configuration resulted in redirect behaviour that caused a redirect loop.
+
+The listener configuration was then corrected so that:
+```
+HTTP :80
+    ↓
+301 Redirect
+    ↓
+HTTPS :443
+    ↓
+ECS Target Group
+```
+The final configuration terminates TLS at the ALB and forwards traffic to the ECS task using HTTP on the container port.
+
+### Memos Authentication Investigation
+
+During the project, Memos produced authentication-related log messages involving missing refresh tokens.
+
+The issue was investigated against the project's deployment history and Memos' upstream issues.
+
+The behaviour could not be conclusively attributed to the ALB HTTP to HTTPS redirect.
+
+The investigation identified similar refresh-token behaviour in upstream Memos issues and also highlighted the importance of configuring the application's canonical public URL when running behind a reverse proxy.
+
+The ECS task was therefore configured with:
+```
+MEMOS_INSTANCE_URL=https://tm.aftabn10.co.uk
+```
+The issue was treated as an application-level investigation rather than assuming that an infrastructure change was automatically responsible for the behaviour.
+
+### Lessons Learned
+
+The project reinforced several practical lessons:
+
+- Infrastructure changes should be tested incrementally.
+- Terraform state locking is important when infrastructure is managed through CI/CD.
+- Security scanner findings require investigation and context rather than blindly fixing every recommendation.
+- Application behaviour should be separated from infrastructure behaviour when troubleshooting.
+- A successful Terraform apply does not necessarily mean that the application itself is healthy.
+- Post-deployment health checks provide an additional validation layer.
+- CI/CD changes should be tested on a separate branch before being merged into the main deployment workflow.
+
+# 10. Summary
 
 ### Repository Structure
 
