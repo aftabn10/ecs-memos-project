@@ -44,7 +44,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./app/memos
-        push: true
+        push: false
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
     
@@ -55,3 +55,11 @@ jobs:
         fail-build: false
         severity-cutoff: high
         output-format: table
+
+    - name: Push Docker image to ECR
+      uses: docker/build-push-action@v5
+      with:
+        context: ./app/memos
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
