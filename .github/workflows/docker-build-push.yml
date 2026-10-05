@@ -1,4 +1,4 @@
-name: Docker Build and Push to ECR
+name: Build Docker Image
 on: 
   push:
     paths:
@@ -40,10 +40,26 @@ jobs:
         tags: | 
           type=sha,format=short
     
-    - name: Build and Push
+    - name: Build Docker Image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./app/memos
+        push: false
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+    
+    - name: Scan Docker image with Grype
+      uses: anchore/scan-action@v6
+      with:
+        image: ${{ steps.meta.outputs.tags }}
+        fail-build: false
+        severity-cutoff: high
+        output-format: table
+
+    - name: Push Docker image to ECR
       uses: docker/build-push-action@v5
       with:
         context: ./app/memos
         push: true
         tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}      
+        labels: ${{ steps.meta.outputs.labels }}
