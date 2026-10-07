@@ -1027,7 +1027,7 @@ The deployment workflows use GitHub Actions OIDC to authenticate with AWS withou
 
 The completed application is available at:
 
-https://tm.domain.co.uk
+https://tm.aftabn10.co.uk
 
 The application was successfully verified using the custom domain and HTTPS.
 
