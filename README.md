@@ -29,7 +29,7 @@ The final deployment uses:
 
 ### Architecture
 
-> **Architecture diagram will be added here.**
+![image](images/ECS-Architecture-Diagram.jpg)
 
 <!-- INSERT FINAL ARCHITECTURE DIAGRAM HERE -->
 
