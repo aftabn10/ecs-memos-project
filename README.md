@@ -664,7 +664,7 @@ The workflow uses GitHub Actions' workflow_run trigger to run after the Terrafor
 
 The health check calls:
 ```bash
-http://tm.aftabn10.co.uk/healthz
+https://tm.aftabn10.co.uk/healthz
 ```
 The workflow retries the request up to five times with a ten-second delay between attempts.
 
