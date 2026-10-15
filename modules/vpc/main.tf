@@ -11,6 +11,9 @@ resource "aws_vpc" "vpc_memos" {
 # Fix: CKV2_AWS_12: Add default SG to restrict traffic
 resource "aws_default_security_group" "default" {
   vpc_id = aws_vpc.vpc_memos.id
+  tags = {
+    Name = "default_sg_memos"
+  }
 }
 
 # created dynamically with for_each and map(object)
@@ -53,6 +56,9 @@ resource "aws_internet_gateway" "igw_memos" {
 # eip
 resource "aws_eip" "eip_nat" {
   domain = var.eip_nat
+  tags = {
+    Name = "eip_nat_memos"
+  }
 }
 
 # NAT Gateway
