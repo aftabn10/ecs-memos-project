@@ -41,9 +41,9 @@ The final Memos application is running on AWS ECS/Fargate and is accessible thro
 
 https://tm.aftabn10.co.uk
 
-![image](images/memos-signin.png)
+![image](images/memos-signin-https.png)
 
-![image](images/memos-app.png)
+![image](images/memos-app-https.png)
 
 ---
 
