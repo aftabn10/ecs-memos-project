@@ -5,8 +5,6 @@
 ![AWS](https://img.shields.io/badge/AWS-ECS_Fargate-FF9900)
 ![Amazon ECS](https://img.shields.io/badge/Amazon_ECS-FF9900?logo=amazonecs&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=githubactions&logoColor=white)
-![Terraform](https://img.shields.io/badge/Terraform-7B42BC?logo=terraform&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
 ![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF)
 ![IaC](https://img.shields.io/badge/IaC-Terraform-7B42BC)
 ![Container](https://img.shields.io/badge/Container-Docker-2496ED)
